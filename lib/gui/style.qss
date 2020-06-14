@@ -1,0 +1,276 @@
+QWidget{
+    color: rgba(226, 226, 226, 255);
+}
+
+
+
+QWidget[elevation="lowest"], QWidget[elevation="low"], QWidget[elevation="medium"],
+QWidget[elevation="high"], QWidget[elevation="highest"]{
+    color: rgba(226, 226, 226, 255);
+    border: none;
+
+    border-radius: 3px;
+}
+QWidget[elevation="lowest"] {
+    background-color: rgba(18, 18, 18, 255);
+}
+QWidget[elevation="low"] {
+    background-color: rgba(30, 30, 30, 255);
+}
+QWidget[elevation="medium"] {
+    background-color: rgba(40, 40, 40, 255);
+}
+QWidget[elevation="high"] {
+    background-color: rgba(46, 46, 46, 255);
+}
+QWidget[elevation="highest"] {
+    background-color: rgba(54, 54, 54, 255);
+}
+
+
+
+QPushButton{
+    color: rgba(226, 226, 226, 255);
+    background: none;
+    border: none;
+    border-radius: 4px;
+}
+QPushButton:hover{
+    background-color: rgba(255, 255, 255, 50);
+}
+QPushButton:pressed, QPushButton:checked{
+    background-color: rgba(0, 0, 0, 80);
+}
+
+
+
+QPushButton[importance="primary"]{
+    background: rgba(30, 144, 255, 255);
+    color: rgba(255, 255, 255, 255);
+    border: none;
+}
+QPushButton[importance="primary"]:hover{
+    background: rgba(81, 169, 255, 255);
+    color: rgba(255, 255, 255, 255);
+}
+QPushButton[importance="primary"]:pressed,QPushButton[importance="primary"]:checked{
+    background: rgba(0, 0, 0, 255);
+    color: rgba(170, 170, 170, 255);
+}
+
+
+
+QPushButton[importance="secondary"]{
+    background: rgba(255, 0, 88, 255);
+    color: rgba(255, 0, 88, 255);
+    border: none;
+}
+QPushButton[importance="secondary"]:hover{
+    background: rgba(255, 51, 121, 255);
+    color: rgba(255, 255, 255, 255);
+}
+QPushButton[importance="secondary"]:pressed,QPushButton[importance="secondary"]:checked{
+    background: rgba(0, 0, 0, 255);
+    color: rgba(170, 170, 170, 255);
+}
+
+
+QAbstractItemView, QAbstractScrollArea, QLineEdit{
+    outline: 0;
+    background-color:  rgba(18, 18, 18, 255);
+    border: none;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+
+
+QTableView{
+	background: transparent;
+	color: rgba(226, 226, 226, 255);
+    selection-background-color: rgba(255, 255, 255, 20);
+    selection-color: white;
+}
+QTableView::item{
+    border-top : 1px solid rgba(255, 255, 255, 40);
+    background: transparent;
+}
+QTableView::item:hover{
+    color: white;
+}
+
+
+
+
+QHeaderView, QHeaderView::section, QTableCornerButton::section{
+    background-color: transparent;
+    color: rgba(255, 255, 255, 120);
+}
+QHeaderView::section:hover{
+    color: rgba(226, 226, 226, 255);
+}
+QHeaderView::down-arrow {
+    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-down.png");
+}
+QHeaderView::down-arrow:hover {
+    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-down-pressed.png");
+}
+QHeaderView::up-arrow {
+    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-up.png");
+}
+QHeaderView::up-arrow:hover {
+    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-up-pressed.png");
+}
+
+
+
+QScrollArea {
+    background-color: transparent;
+    border: none;
+}
+
+
+
+QScrollBar {
+    border-radius: 4px;
+    background-color: transparent;
+}
+QScrollBar:horizontal {
+    height: 12px;
+    margin: 2px 16px 2px 16px;
+}
+QScrollBar:vertical {
+    width: 12px;
+    margin: 16px 2px 16px 2px;
+}
+
+QScrollBar::handle {
+    background-color: #757575;
+    border: none;
+    border-radius: 4px;
+    min-width: 8px;
+    min-height: 8px;
+}
+QScrollBar::handle:hover {
+    background-color: #909090;
+}
+QScrollBar::handle:pressed {
+    background-color: rgba(30, 144, 255, 255);
+}
+
+QScrollBar::add-line:horizontal {
+    margin: 0px 5px 0px 0px;
+    height: 8px;
+    width: 8px;
+    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-right.png");
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}
+QScrollBar::add-line:horizontal:hover, QScrollBar::add-line:horizontal:pressed {
+    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-right-pressed.png");
+}
+QScrollBar::add-line:vertical {
+    margin: 5px 0px 0px 0px;
+    height: 8px;
+    width: 8px;
+    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-down.png");
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+QScrollBar::add-line:vertical:hover, QScrollBar::add-line:vertical:pressed {
+    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-down-pressed.png");
+}
+QScrollBar::sub-line:horizontal {
+    margin: 0px 0px 0px 5px;
+    height: 8px;
+    width: 8px;
+    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-left.png");
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:horizontal:hover, QScrollBar::sub-line:horizontal:pressed {
+    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-left-pressed.png");
+}
+QScrollBar::sub-line:vertical {
+    margin: 0px 0px 5px 0px;
+    height: 8px;
+    width: 8px;
+    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-up.png");
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+QScrollBar::sub-line:vertical:hover, QScrollBar::sub-line:vertical:pressed {
+    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-up-pressed.png");
+}
+
+QScrollBar::add-page, QScrollBar::sub-page {
+    background: none;
+}
+
+
+
+QSpinBox, QDoubleSpinBox {
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 80);
+    text-align: center;
+}
+QSpinBox::up-button, QDoubleSpinBox::up-button {
+    padding-right: 4px;
+    padding-top: 2px;
+    width: 7px;
+    height: 7px;
+    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-up.png");
+}
+QSpinBox::down-button, QDoubleSpinBox::down-button {
+    padding-right: 4px;
+    padding-bottom: 2px;
+    width: 7px;
+    height: 7px;
+    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-down.png");
+}
+QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover {
+    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-up-pressed.png");
+}
+QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
+    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-down-pressed.png");
+}
+QCheckBox::indicator {
+    width: 15px;
+    height: 15px;
+}
+
+
+
+QToolTip{
+    border: none;
+    font-size: 9;
+    padding: 2px;
+    color:white;
+    overflow-wrap: break-spaces;
+    white-space: normal;
+    word-wrap: break-word;
+    max-width: 300px;
+}
+
+QGraphicsView{
+    background-color: rgba(18, 18, 18, 255);
+    border: none;
+    border-radius: 4px;
+}
+
+
+QProgressBar {
+    border: none;
+    border-radius: 4px;
+    background-color: rgba(18, 18, 18, 255);
+}
+
+QProgressBar::chunk {
+	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(31, 120, 255, 255), stop:1 rgba(30, 160, 255, 255));
+	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(71, 115, 235, 255), stop:1 rgba(95, 162, 238, 255));
+	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(77, 125, 255, 255), stop:1 rgba(102, 173, 255, 255));
+    border: none;
+    border-radius: 3px;
+    margin: 3px;
+}
