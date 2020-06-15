@@ -23,6 +23,10 @@ class Tool(object):
         self.view = view
 
     @property
+    def cursor(self):
+        return QtCore.Qt.CursorShape.ArrowCursor
+
+    @property
     def color(self):
         return self.view.color
 
@@ -52,11 +56,15 @@ class PainterTool(Tool):
         self.pen = QtGui.QPen()
         self.pen.setCapStyle(QtCore.Qt.RoundCap)
 
+        self._cursor = None
+        self.is_editing_size = False
         self._size = None
         self.size = 5
 
         # preview item used when modifying size
         self.size_display_item = QtWidgets.QGraphicsEllipseItem()
+        self.size_display_item.setPen(QtGui.QColor("red"))
+        self.view.scene.addItem(self.size_display_item)
 
     # == SIZE ======================================================================================
 
@@ -77,6 +85,21 @@ class PainterTool(Tool):
 
         self.pen.setWidth(self.size)
 
+        self.update_cursor()
+
+    @property
+    def cursor(self):
+        return self._cursor
+
+    def update_cursor(self):
+        pix = QtGui.QPixmap(self.size, self.size)
+        pix.fill(QtCore.Qt.transparent)
+
+        with PainterContext(pix) as painter:
+            painter.drawEllipse(0, 0, self.size-1, self.size-1)
+
+        self._cursor = QtGui.QCursor(pix)
+
     # == EVENTS ====================================================================================
 
     def on_press(self, event):
@@ -85,14 +108,19 @@ class PainterTool(Tool):
         # If alt is pressed
         if event.modifiers() & QtCore.Qt.AltModifier:
             self._prec_size = self.size
-            self.view.scene.addItem(self.size_display_item)
+
+            self.show_size_display(self._prec_pos)
+
+            self.view.setCursor(QtCore.Qt.BlankCursor)
+
+            self.is_editing_size = True
+
             return False
 
         return True
 
     def on_move(self, event):
-        # If alt is pressed
-        if event.modifiers() & QtCore.Qt.AltModifier:
+        if self.is_editing_size:
             # Set size based on the x distance from mouse click
             dist = self.view.mapToScene(event.pos()).x() - self._prec_pos.x()
             self.size = self._prec_size + dist
@@ -106,6 +134,10 @@ class PainterTool(Tool):
 
     def on_release(self, event):
         self.size_display_item.hide()
+
+        if self.is_editing_size:
+            self.view.setCursor(self.cursor)
+            self.is_editing_size = False
 
 
 class BrushTool(PainterTool):
@@ -253,6 +285,7 @@ Tool.register(EraserTool)
 class BucketTool(Tool):
     shortcut = QtGui.QKeySequence("G")
     icon = "fa5s.fill-drip"
+
     to_adjacent = (0, 1), (0, -1), (1, 0), (-1, 0)
 
     def __init__(self, view):
@@ -271,14 +304,16 @@ class BucketTool(Tool):
         pixmap = self.view.scene.current_layer.pixmap()
         image = pixmap.toImage()
 
+        image_width, image_height = image.width(), image.height()
+
         if (start_pixel[0] < 0 or
-            start_pixel[0] > image.width() or
+            start_pixel[0] > image_width or
             start_pixel[1] < 0 or
-            start_pixel[1] > image.height()):
+            start_pixel[1] > image_width):
             return
 
         start_color = image.pixelColor(*start_pixel)
-        tolerance = self.tolerance / 100.
+        tolerance = self.tolerance / 100. / 4.
 
         to_sample = {start_pixel}
         already_sampled = set()
@@ -291,24 +326,29 @@ class BucketTool(Tool):
             pixel_color = image.pixelColor(*pixel)
 
             # If pixel color is the same as start color (based on tolerance)
-
-            if (abs(pixel_color.hslHueF() - start_color.hslHueF()) +
-                abs(pixel_color.hslSaturationF() - start_color.hslSaturationF()) +
-                abs(pixel_color.lightnessF() - start_color.lightnessF()) +
-                abs(pixel_color.alphaF() - start_color.alphaF())) < tolerance:
+            if (abs(pixel_color.hslHueF() - start_color.hslHueF()) < tolerance and
+                abs(pixel_color.hslSaturationF() - start_color.hslSaturationF()) < tolerance and
+                abs(pixel_color.lightnessF() - start_color.lightnessF()) < tolerance and
+                abs(pixel_color.alphaF() - start_color.alphaF()) < tolerance):
 
                 # Fill pixel color with the view's color
                 image.setPixelColor(*pixel, self.color)
 
                 # Schedule adjacent pixels and add this pixel to already_sampled
-                to_sample.update(self.get_adjacent_pixels(pixel, image).difference(already_sampled))
+                to_sample.update(self.get_adjacent_pixels(pixel, image_width, image_height).difference(already_sampled))
                 already_sampled.add(pixel)
 
             already_sampled.add(pixel)
 
         self.view.scene.current_layer.setPixmap(QtGui.QPixmap.fromImage(image))
 
-    def get_adjacent_pixels(self, pos, image):
+    def are_equals(self, pixel_color, start_color, tolerance):
+        return (abs(pixel_color.hslHueF() - start_color.hslHueF()) < tolerance and
+                abs(pixel_color.hslSaturationF() - start_color.hslSaturationF()) < tolerance and
+                abs(pixel_color.lightnessF() - start_color.lightnessF()) < tolerance and
+                abs(pixel_color.alphaF() - start_color.alphaF()) < tolerance)
+
+    def get_adjacent_pixels(self, pos, width, height):
         start_x, start_y = pos
         adjacents = set()
 
@@ -317,7 +357,7 @@ class BucketTool(Tool):
             adjacents.add((start_x - 1, start_y))
 
         # If pixel is not on the most right column, add the pixel at its right
-        if start_x < image.width():
+        if start_x < width:
             adjacents.add((start_x + 1, start_y))
 
         # If pixel is not on the highest row, add the pixel at above it
@@ -325,7 +365,7 @@ class BucketTool(Tool):
             adjacents.add((start_x, start_y - 1))
 
         # If pixel is not on the lowest row, add the pixel at under it
-        if start_y < image.height():
+        if start_y < height:
             adjacents.add((start_x, start_y + 1))
 
         return adjacents
@@ -347,6 +387,10 @@ class Scene(QtWidgets.QGraphicsScene):
         self.add_layer()
         self.set_current_layer(0)
 
+    @property
+    def pixmap(self):
+        return self.layers[0].pixmap()
+
     def add_layer(self):
         pixmap = QtGui.QPixmap(self.width(), self.height())
         pixmap.fill(QtCore.Qt.transparent)
@@ -359,12 +403,15 @@ class Scene(QtWidgets.QGraphicsScene):
 
 
 class PaintView(QtWidgets.QGraphicsView):
+    image_changed = QtCore.Signal(QtGui.QPixmap)
+    color_changed = QtCore.Signal(QtGui.QColor)
+
     TOOLS = Tool.tools
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, width=1024, height=1024):
         super(PaintView, self).__init__(parent=parent)
 
-        self.scene = Scene(self)
+        self.scene = Scene(self, width, height)
         self.setScene(self.scene)
 
         # Colors
@@ -378,11 +425,14 @@ class PaintView(QtWidgets.QGraphicsView):
         # Tools
         self.tools = {}
         self._tool = None
-        self.tools_menu = QtWidgets.QMenu(self)
 
         self.install_tools(self.TOOLS)
 
         self.set_tool("BrushTool")
+
+    @property
+    def pixmap(self):
+        return self.scene.pixmap
 
     # == COLOR =====================================================================================
 
@@ -393,6 +443,7 @@ class PaintView(QtWidgets.QGraphicsView):
     @color.setter
     def color(self, *args):
         self._color = QtGui.QColor(*args)
+        self.color_changed.emit(self._color)
 
     def set_color(self, color):
         print(color)
@@ -407,16 +458,6 @@ class PaintView(QtWidgets.QGraphicsView):
             shortcut = QtWidgets.QShortcut(tool.shortcut, self)
             shortcut.activated.connect(lambda: self.set_tool(tool))
 
-            # Add action to tools_menu
-            action = QtWidgets.QAction(name, self.tools_menu)
-
-            if tool.icon is not None:
-                action.setIcon(qta.icon(tool.icon))
-
-            action.triggered.connect(lambda: self.set_tool(tool))
-
-            self.tools_menu.addAction(action)
-
         self.tools[name] = tool
 
     def install_tools(self, tools_dict):
@@ -427,20 +468,21 @@ class PaintView(QtWidgets.QGraphicsView):
     def tool(self):
         return self._tool
 
-    def set_tool(self, value):
-        if not isinstance(value, Tool):
-            if value not in self.tools:
-                raise ValueError(f"Wrong tool : {value}")
+    def set_tool(self, tool):
+        if not isinstance(tool, Tool):
+            if tool not in self.tools:
+                raise ValueError(f"Wrong tool : {tool}")
 
-            value = self.tools[value]
+            tool = self.tools[tool]
 
-        self._tool = value
+        self._tool = tool
 
-        logger.debug(f"Tool set to {self._tool.__class__.__name__}")
+        self.setCursor(tool.cursor)
 
-    def color_dialog_requested(self, event):
-        pos = self.mapToGlobal(event.pos())
-        self.color_dialog.move(pos)
+        logger.debug(f"Tool set to {tool.__class__.__name__}")
+
+    def color_dialog_requested(self, global_pos):
+        self.color_dialog.move(global_pos)
 
         return self.color_dialog.show()
 
@@ -450,28 +492,31 @@ class PaintView(QtWidgets.QGraphicsView):
         logger.debug("pressed " + str(event.pos()))
 
         # Close color dialog
-        self.color_dialog.close()
+        # self.color_dialog.close()
 
         # Propagate event to the current tool
-        self.tool.on_press(event)
+        if self.tool.on_press(event):
+            self.image_changed.emit(self.pixmap)
 
         # If right click is pressed : show color dialog
         if event.buttons() & QtCore.Qt.RightButton:
-            self.color_dialog_requested(event)
+            self.color_dialog_requested(self.mapToGlobal(event.pos()))
 
         return super(PaintView, self).mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
         logger.debug("moved " + str(event.pos()))
 
-        self.tool.on_move(event)
+        if self.tool.on_move(event):
+            self.image_changed.emit(self.pixmap)
 
         return super(PaintView, self).mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
         logger.debug("released " + str(event.pos()))
 
-        self.tool.on_release(event)
+        if self.tool.on_release(event):
+            self.image_changed.emit(self.pixmap)
 
         return super(PaintView, self).mousePressEvent(event)
     
