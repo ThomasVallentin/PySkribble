@@ -313,10 +313,11 @@ class BucketTool(Tool):
             return
 
         start_color = image.pixelColor(*start_pixel)
+        fill_color = self.color
         tolerance = self.tolerance / 100. / 4.
 
         to_sample = {start_pixel}
-        already_sampled = set()
+        already_added = {start_pixel}
 
         while to_sample:
             # Take one pixel from the set of pixel to sample
@@ -331,44 +332,43 @@ class BucketTool(Tool):
                 abs(pixel_color.lightnessF() - start_color.lightnessF()) < tolerance and
                 abs(pixel_color.alphaF() - start_color.alphaF()) < tolerance):
 
+                x, y = pixel
+
                 # Fill pixel color with the view's color
-                image.setPixelColor(*pixel, self.color)
+                image.setPixelColor(x, y, fill_color)
 
-                # Schedule adjacent pixels and add this pixel to already_sampled
-                to_sample.update(self.get_adjacent_pixels(pixel, image_width, image_height).difference(already_sampled))
-                already_sampled.add(pixel)
+                # Schedule adjacent pixels in to_sample and add them to already_added so that
+                # they're not tested again
 
-            already_sampled.add(pixel)
+                # If pixel is not on the most left column, add the pixel at its left
+                if x > 0:
+                    adj = (x - 1, y)
+                    if adj not in already_added:
+                        to_sample.add(adj)
+                        already_added.add(adj)
+
+                # If pixel is not on the most right column, add the pixel at its right
+                if x < image_width:
+                    adj = (x + 1, y)
+                    if adj not in already_added:
+                        to_sample.add(adj)
+                        already_added.add(adj)
+
+                # If pixel is not on the highest row, add the pixel at above it
+                if y > 0:
+                    adj = (x, y - 1)
+                    if adj not in already_added:
+                        to_sample.add(adj)
+                        already_added.add(adj)
+
+                # If pixel is not on the lowest row, add the pixel at under it
+                if y < image_height:
+                    adj = (x, y + 1)
+                    if adj not in already_added:
+                        to_sample.add(adj)
+                        already_added.add(adj)
 
         self.view.scene.current_layer.setPixmap(QtGui.QPixmap.fromImage(image))
-
-    def are_equals(self, pixel_color, start_color, tolerance):
-        return (abs(pixel_color.hslHueF() - start_color.hslHueF()) < tolerance and
-                abs(pixel_color.hslSaturationF() - start_color.hslSaturationF()) < tolerance and
-                abs(pixel_color.lightnessF() - start_color.lightnessF()) < tolerance and
-                abs(pixel_color.alphaF() - start_color.alphaF()) < tolerance)
-
-    def get_adjacent_pixels(self, pos, width, height):
-        start_x, start_y = pos
-        adjacents = set()
-
-        # If pixel is not on the most left column, add the pixel at its left
-        if start_x > 0:
-            adjacents.add((start_x - 1, start_y))
-
-        # If pixel is not on the most right column, add the pixel at its right
-        if start_x < width:
-            adjacents.add((start_x + 1, start_y))
-
-        # If pixel is not on the highest row, add the pixel at above it
-        if start_y > 0:
-            adjacents.add((start_x, start_y - 1))
-
-        # If pixel is not on the lowest row, add the pixel at under it
-        if start_y < height:
-            adjacents.add((start_x, start_y + 1))
-
-        return adjacents
 
 
 Tool.register(BucketTool)
