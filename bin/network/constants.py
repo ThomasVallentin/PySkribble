@@ -1,0 +1,28 @@
+# Messages
+UNKNOWN_MESSAGE = -1
+ECHO = 0
+PAINT = 1
+GUESS = 2
+CHOICE = 3
+ADD_PLAYER = 4
+REMOVE_PLAYER = 5
+START_GAME = 6
+GAME_DATA = 7
+
+GAME_STARTED = 8
+CHOOSING_STARTED = 9
+DRAWING_STARTED = 10
+
+MESSAGE_NAMES = {ECHO: "ECHO",
+                 PAINT: "PAINT",
+                 GUESS: "GUESS",
+                 CHOICE: "CHOICE",
+                 ADD_PLAYER: "ADD_PLAYER",
+                 REMOVE_PLAYER: "REMOVE_PLAYER",
+                 START_GAME: "START_GAME",
+                 GAME_DATA: "GAMEDATA",
+                 GAME_STARTED: "GAME_STARTED",
+                 CHOOSING_STARTED: "CHOOSING_STARTED",
+                 -1: "UNKNOWN_MESSAGE "}
+
+BUFFER_SIZE = 8192 * 128

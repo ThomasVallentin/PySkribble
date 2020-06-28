@@ -61,16 +61,16 @@ QPushButton[importance="primary"]:pressed,QPushButton[importance="primary"]:chec
 
 
 QPushButton[importance="secondary"]{
-    background: rgba(255, 0, 88, 255);
-    color: rgba(255, 0, 88, 255);
+    background-color: rgb(255, 0, 88);
+    color: rgb(255, 255, 255);
     border: none;
 }
 QPushButton[importance="secondary"]:hover{
-    background: rgba(255, 51, 121, 255);
-    color: rgba(255, 255, 255, 255);
+    background-color: rgb(255, 51, 121);
+    color: rgb(255, 255, 255);
 }
 QPushButton[importance="secondary"]:pressed,QPushButton[importance="secondary"]:checked{
-    background: rgba(0, 0, 0, 255);
+    background-color: rgba(0, 0, 0, 255);
     color: rgba(170, 170, 170, 255);
 }
 
@@ -81,6 +81,7 @@ QAbstractItemView, QAbstractScrollArea, QLineEdit{
     border: none;
     border-radius: 4px;
     padding: 8px;
+    color: #aaaaaa;
 }
 
 
@@ -110,16 +111,16 @@ QHeaderView::section:hover{
     color: rgba(226, 226, 226, 255);
 }
 QHeaderView::down-arrow {
-    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-down.png");
+    image: url("bin/gui/ressources/chevron-down.png");
 }
 QHeaderView::down-arrow:hover {
-    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-down-pressed.png");
+    image: url("bin/gui/ressources/chevron-down-pressed.png");
 }
 QHeaderView::up-arrow {
-    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-up.png");
+    image: url("bin/gui/ressources/chevron-up.png");
 }
 QHeaderView::up-arrow:hover {
-    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-up-pressed.png");
+    image: url("bin/gui/ressources/chevron-up-pressed.png");
 }
 
 
@@ -162,46 +163,46 @@ QScrollBar::add-line:horizontal {
     margin: 0px 5px 0px 0px;
     height: 8px;
     width: 8px;
-    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-right.png");
+    border-image: url("bin/gui/ressources/chevron-right.png");
     subcontrol-position: right;
     subcontrol-origin: margin;
 }
 QScrollBar::add-line:horizontal:hover, QScrollBar::add-line:horizontal:pressed {
-    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-right-pressed.png");
+    border-image: url("bin/gui/ressources/chevron-right-pressed.png");
 }
 QScrollBar::add-line:vertical {
     margin: 5px 0px 0px 0px;
     height: 8px;
     width: 8px;
-    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-down.png");
+    border-image: url("bin/gui/ressources/chevron-down.png");
     subcontrol-position: bottom;
     subcontrol-origin: margin;
 }
 QScrollBar::add-line:vertical:hover, QScrollBar::add-line:vertical:pressed {
-    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-down-pressed.png");
+    border-image: url("bin/gui/ressources/chevron-down-pressed.png");
 }
 QScrollBar::sub-line:horizontal {
     margin: 0px 0px 0px 5px;
     height: 8px;
     width: 8px;
-    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-left.png");
+    border-image: url("bin/gui/ressources/chevron-left.png");
     subcontrol-position: left;
     subcontrol-origin: margin;
 }
 
 QScrollBar::sub-line:horizontal:hover, QScrollBar::sub-line:horizontal:pressed {
-    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-left-pressed.png");
+    border-image: url("bin/gui/ressources/chevron-left-pressed.png");
 }
 QScrollBar::sub-line:vertical {
     margin: 0px 0px 5px 0px;
     height: 8px;
     width: 8px;
-    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-up.png");
+    border-image: url("bin/gui/ressources/chevron-up.png");
     subcontrol-position: top;
     subcontrol-origin: margin;
 }
 QScrollBar::sub-line:vertical:hover, QScrollBar::sub-line:vertical:pressed {
-    border-image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-up-pressed.png");
+    border-image: url("bin/gui/ressources/chevron-up-pressed.png");
 }
 
 QScrollBar::add-page, QScrollBar::sub-page {
@@ -220,20 +221,20 @@ QSpinBox::up-button, QDoubleSpinBox::up-button {
     padding-top: 2px;
     width: 7px;
     height: 7px;
-    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-up.png");
+    image: url("bin/gui/ressources/chevron-up.png");
 }
 QSpinBox::down-button, QDoubleSpinBox::down-button {
     padding-right: 4px;
     padding-bottom: 2px;
     width: 7px;
     height: 7px;
-    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-down.png");
+    image: url("bin/gui/ressources/chevron-down.png");
 }
 QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover {
-    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-up-pressed.png");
+    image: url("bin/gui/ressources/chevron-up-pressed.png");
 }
 QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
-    image: url("/u/mgltd/TVALLENTIN/workspace/tdScripts/Python/td/maya/tools/profiling/gui/icons/chevron-down-pressed.png");
+    image: url("bin/gui/ressources/chevron-down-pressed.png");
 }
 QCheckBox::indicator {
     width: 15px;
@@ -261,16 +262,14 @@ QGraphicsView{
 
 
 QProgressBar {
-    border: none;
     border-radius: 4px;
     background-color: rgba(18, 18, 18, 255);
+    padding: 6px;
+
 }
 
 QProgressBar::chunk {
-	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(31, 120, 255, 255), stop:1 rgba(30, 160, 255, 255));
-	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(71, 115, 235, 255), stop:1 rgba(95, 162, 238, 255));
-	background-color: qlineargradient(spread:pad, x1:1, y1:1, x2:1, y2:0, stop:0 rgba(77, 125, 255, 255), stop:1 rgba(102, 173, 255, 255));
+    background-color: #1e90ff;
     border: none;
-    border-radius: 3px;
-    margin: 3px;
+    width: 1px;
 }

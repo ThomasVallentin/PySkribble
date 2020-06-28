@@ -2,6 +2,25 @@ from PySide2 import QtWidgets, QtCore, QtGui
 from lib import contextDecorators as ctx
 
 
+class BusyCursor(ctx.ContextDecorator):
+    def __enter__(self):
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.BusyCursor)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        QtWidgets.QApplication.restoreOverrideCursor()
+
+
+class SignalsBlocked(ctx.ContextDecorator):
+    def __init__(self, widget):
+        self.widget = widget
+
+    def __enter__(self):
+        self.widget.blockSignals(True)
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.widget.blockSignals(False)
+
+
 class PainterContext(ctx.ContextDecorator):
     def __init__(self, *args, **kwargs):
         self.args = args
@@ -25,6 +44,7 @@ class ColorDialog(QtWidgets.QColorDialog):
         self.setOptions(self.NoButtons)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 
+        self.setWindowFlags(QtCore.Qt.Popup)
         self.setStyleSheet("QWidget{"
                            "  background-color: #333333; "
                            "  color: #aaaaaa; "

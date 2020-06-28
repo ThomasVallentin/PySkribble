@@ -1,5 +1,5 @@
 venv
 .idea
-shuffle.py
-skribble.txt
+.old/shuffle.py
+.old/skribble.txt
 *.pyc

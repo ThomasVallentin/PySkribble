@@ -1,17 +1,6 @@
 from PySide2 import QtWidgets, QtCore, QtGui
-from lib.gui.utils import PainterContext, ColorDialog
-import logging
-import qtawesome as qta
-
-logger = logging.getLogger("PaintView")
-logger.setLevel(logging.DEBUG)
-
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s %(name)s : %(message)s')
-formatter.datefmt = "%H:%M:%S"
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+from gui.utils import PainterContext
+from gui.paintView import painting as paint
 
 
 class Tool(object):
@@ -45,16 +34,11 @@ class Tool(object):
 
 
 class PainterTool(Tool):
-    shortcut = QtGui.QKeySequence("B")
-
     def __init__(self, view):
         super(PainterTool, self).__init__(view)
 
         self._prec_pos = None
         self._prec_size = None
-
-        self.pen = QtGui.QPen()
-        self.pen.setCapStyle(QtCore.Qt.RoundCap)
 
         self._cursor = None
         self.is_editing_size = False
@@ -83,8 +67,6 @@ class PainterTool(Tool):
     def size(self, size):
         self._size = max(0.1, size)
 
-        self.pen.setWidth(self.size)
-
         self.update_cursor()
 
     @property
@@ -96,7 +78,7 @@ class PainterTool(Tool):
         pix.fill(QtCore.Qt.transparent)
 
         with PainterContext(pix) as painter:
-            painter.drawEllipse(0, 0, self.size-1, self.size-1)
+            painter.drawEllipse(1, 1, self.size-2, self.size-2)
 
         self._cursor = QtGui.QCursor(pix)
 
@@ -159,7 +141,7 @@ class BrushTool(PainterTool):
             return False
 
         # if alt is not pressed
-        self.paint_point(self._prec_pos)
+        self.view.paint_point(self._prec_pos, self.size, self.color)
 
         return True
 
@@ -172,42 +154,11 @@ class BrushTool(PainterTool):
 
         pos = self.view.mapToScene(event.pos())
 
-        self.paint_line(self._prec_pos, pos)
+        self.view.paint_line(self._prec_pos, pos, self.size, self.color)
 
         self._prec_pos = pos
 
         return True
-
-    def paint_point(self, pos):
-        pixmap = self.view.scene.current_layer.pixmap()
-
-        # Create painter
-        with PainterContext(pixmap) as painter:
-            # Set painter settings
-            painter.setRenderHints(QtGui.QPainter.Antialiasing)
-            self.pen.setColor(self.color)
-            painter.setPen(self.pen)
-
-            # Paint point
-            painter.drawPoint(pos)
-            # painter.drawEllipse(pos, self.size, self.size)
-
-        self.view.scene.current_layer.setPixmap(pixmap)
-
-    def paint_line(self, pos1, pos2):
-        pixmap = self.view.scene.current_layer.pixmap()
-
-        # Create painter
-        with PainterContext(pixmap) as painter:
-            # Set painter settings
-            painter.setRenderHints(QtGui.QPainter.Antialiasing)
-            self.pen.setColor(self.color)
-            painter.setPen(self.pen)
-
-            # Paint point
-            painter.drawLine(pos1, pos2)
-
-        self.view.scene.current_layer.setPixmap(pixmap)
 
 
 Tool.register(BrushTool)
@@ -221,8 +172,6 @@ class EraserTool(PainterTool):
         super(EraserTool, self).__init__(view)
 
         self._prec_pos = None
-
-        self.pen.setColor(QtGui.QColor(255,255,0,0))
 
     def on_press(self, event):
         if not super(EraserTool, self).on_press(event):
@@ -312,28 +261,26 @@ class BucketTool(Tool):
             start_pixel[1] > image_width):
             return
 
-        start_color = image.pixelColor(*start_pixel)
+        start_color = image.pixel(*start_pixel)
         fill_color = self.color
         tolerance = self.tolerance / 100. / 4.
 
         to_sample = {start_pixel}
         already_added = {start_pixel}
 
+        print(QtGui.QColor.fromRgba(start_color))
+        mask = image.createMaskFromColor(start_color)
+        white = QtGui.qRgb(255, 255, 255)
+
         while to_sample:
             # Take one pixel from the set of pixel to sample
-            pixel = to_sample.pop()
+            x, y = to_sample.pop()
 
             # Get color at pixel
-            pixel_color = image.pixelColor(*pixel)
+            mask_color = mask.pixel(x, y)
 
-            # If pixel color is the same as start color (based on tolerance)
-            if (abs(pixel_color.hslHueF() - start_color.hslHueF()) < tolerance and
-                abs(pixel_color.hslSaturationF() - start_color.hslSaturationF()) < tolerance and
-                abs(pixel_color.lightnessF() - start_color.lightnessF()) < tolerance and
-                abs(pixel_color.alphaF() - start_color.alphaF()) < tolerance):
-
-                x, y = pixel
-
+            # If color matches start_color
+            if mask_color == white:
                 # Fill pixel color with the view's color
                 image.setPixelColor(x, y, fill_color)
 
@@ -372,163 +319,3 @@ class BucketTool(Tool):
 
 
 Tool.register(BucketTool)
-
-
-class Scene(QtWidgets.QGraphicsScene):
-    def __init__(self, view, width=1024, height=1024):
-        super(Scene, self).__init__()
-        self.view = view
-
-        self.layers = []
-        self.current_layer = None
-
-        self.setSceneRect(0, 0, width, height)
-
-        self.add_layer()
-        self.set_current_layer(0)
-
-    @property
-    def pixmap(self):
-        return self.layers[0].pixmap()
-
-    def add_layer(self):
-        pixmap = QtGui.QPixmap(self.width(), self.height())
-        pixmap.fill(QtCore.Qt.transparent)
-
-        item = self.addPixmap(pixmap)
-        self.layers.append(item)
-
-    def set_current_layer(self, index=-1):
-        self.current_layer = self.layers[index]
-
-
-class PaintView(QtWidgets.QGraphicsView):
-    image_changed = QtCore.Signal(QtGui.QPixmap)
-    color_changed = QtCore.Signal(QtGui.QColor)
-
-    TOOLS = Tool.tools
-
-    def __init__(self, parent=None, width=1024, height=1024):
-        super(PaintView, self).__init__(parent=parent)
-
-        self.scene = Scene(self, width, height)
-        self.setScene(self.scene)
-
-        # Colors
-        self._color = None
-        self.color = "black"
-
-        self.color_dialog = ColorDialog()
-        self.color_dialog.hide()
-        self.color_dialog.currentColorChanged.connect(self.set_color)
-
-        # Tools
-        self.tools = {}
-        self._tool = None
-
-        self.install_tools(self.TOOLS)
-
-        self.set_tool("BrushTool")
-
-    @property
-    def pixmap(self):
-        return self.scene.pixmap
-
-    # == COLOR =====================================================================================
-
-    @property
-    def color(self):
-        return self._color
-
-    @color.setter
-    def color(self, *args):
-        self._color = QtGui.QColor(*args)
-        self.color_changed.emit(self._color)
-
-    def set_color(self, color):
-        print(color)
-        self.color = color
-
-    # == TOOLS =====================================================================================
-
-    def install_tool(self, name, cls):
-        tool = cls(self)
-        if tool.shortcut:
-            # Create ShortCut
-            shortcut = QtWidgets.QShortcut(tool.shortcut, self)
-            shortcut.activated.connect(lambda: self.set_tool(tool))
-
-        self.tools[name] = tool
-
-    def install_tools(self, tools_dict):
-        for name, tool_cls in tools_dict.items():
-            self.install_tool(name, tool_cls)
-
-    @property
-    def tool(self):
-        return self._tool
-
-    def set_tool(self, tool):
-        if not isinstance(tool, Tool):
-            if tool not in self.tools:
-                raise ValueError(f"Wrong tool : {tool}")
-
-            tool = self.tools[tool]
-
-        self._tool = tool
-
-        self.setCursor(tool.cursor)
-
-        logger.debug(f"Tool set to {tool.__class__.__name__}")
-
-    def color_dialog_requested(self, global_pos):
-        self.color_dialog.move(global_pos)
-
-        return self.color_dialog.show()
-
-    # == EVENTS ====================================================================================
-
-    def mousePressEvent(self, event):
-        logger.debug("pressed " + str(event.pos()))
-
-        # Close color dialog
-        # self.color_dialog.close()
-
-        # Propagate event to the current tool
-        if self.tool.on_press(event):
-            self.image_changed.emit(self.pixmap)
-
-        # If right click is pressed : show color dialog
-        if event.buttons() & QtCore.Qt.RightButton:
-            self.color_dialog_requested(self.mapToGlobal(event.pos()))
-
-        return super(PaintView, self).mousePressEvent(event)
-
-    def mouseMoveEvent(self, event):
-        logger.debug("moved " + str(event.pos()))
-
-        if self.tool.on_move(event):
-            self.image_changed.emit(self.pixmap)
-
-        return super(PaintView, self).mousePressEvent(event)
-
-    def mouseReleaseEvent(self, event):
-        logger.debug("released " + str(event.pos()))
-
-        if self.tool.on_release(event):
-            self.image_changed.emit(self.pixmap)
-
-        return super(PaintView, self).mousePressEvent(event)
-    
-    def closeEvent(self, event):
-        self.color_dialog.close()
-        super(PaintView, self).closeEvent(event)
-
-
-if __name__ == '__main__':
-    app = QtWidgets.QApplication([])
-
-    view = PaintView()
-    view.show()
-
-    app.exec_()

@@ -1,0 +1,176 @@
+from PySide2 import QtWidgets, QtCore, QtGui
+
+import os
+
+from constants import *
+
+
+class PlayerListWidget(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(PlayerListWidget, self).__init__(parent=parent)
+
+        self.player_items = {}
+
+        self.setup_ui()
+
+    def setup_ui(self):
+        self.setMinimumWidth(350)
+
+        self.lyt = QtWidgets.QVBoxLayout(self)
+        self.lyt.setObjectName(u"players_wid_lyt")
+        self.lyt.setContentsMargins(8, 8, 8, 8)
+
+        self.players_sorting_lyt = QtWidgets.QHBoxLayout()
+        self.players_sorting_lyt.setObjectName(u"players_sorting_lyt")
+
+        self.players_sorting_lbl = QtWidgets.QLabel(self)
+        self.players_sorting_lbl.setObjectName(u"players_sorting_lbl")
+        self.players_sorting_lbl.setFixedSize(QtCore.QSize(45, 25))
+        self.players_sorting_lbl.setText("Sort by :")
+        self.players_sorting_lbl.setStyleSheet(u"color: #aaaaaa;")
+
+        self.players_sorting_lyt.addWidget(self.players_sorting_lbl)
+
+        self.players_sorting_ranking_btn = QtWidgets.QPushButton(self)
+        self.players_sorting_ranking_btn.setText("Ranking")
+        self.players_sorting_ranking_btn.setObjectName(u"players_sorting_ranking_btn")
+
+        self.players_sorting_lyt.addWidget(self.players_sorting_ranking_btn)
+
+        self.players_sorting_upnext_btn = QtWidgets.QPushButton(self)
+        self.players_sorting_upnext_btn.setObjectName(u"players_sorting_upnext_btn")
+        self.players_sorting_upnext_btn.setText("Up next")
+
+        self.players_sorting_lyt.addWidget(self.players_sorting_upnext_btn)
+        self.lyt.addLayout(self.players_sorting_lyt)
+
+        self.player_list_wid = QtWidgets.QListWidget(self)
+        self.player_list_wid.setSpacing(4)
+        self.player_list_wid.setObjectName(u"player_list_wid")
+        self.player_list_wid.setProperty("elevation", "low")
+
+        self.player_list_wid_lyt = QtWidgets.QVBoxLayout(self.player_list_wid)
+        self.player_list_wid_lyt.setSpacing(2)
+        self.player_list_wid_lyt.setObjectName(u"player_list_wid_lyt")
+        self.player_list_wid_lyt.setContentsMargins(8, 8, 8, 8)
+
+        self.lyt.addWidget(self.player_list_wid)
+
+    def add_player(self, player):
+        item = QtWidgets.QListWidgetItem()
+        widget = PlayerWidget(player, self)
+
+        item.widget = widget
+        item.setFlags(QtCore.Qt.ItemIsEnabled)
+        item.setSizeHint(QtCore.QSize(0, 64))
+
+        self.player_items[player.id] = item
+
+        self.player_list_wid.addItem(item)
+        self.player_list_wid.setItemWidget(item, widget)
+
+    def remove_player(self, player_id):
+        item = self.player_items[player_id]
+        self.player_list_wid.takeItem(self.player_list_wid.row(item))
+
+        del self.player_items[player_id]
+        item.widget.deleteLater()
+
+    def update_from_game(self, game):
+        players = game.players.copy()
+        to_remove = []
+        for id, item in self.player_items.items():
+            # If the player widget exists and is still in the game, update it
+            if id in players:
+                player = players.pop(id)
+                item.widget.update_player(player)
+
+            # If the player widget and is not in the game, remove it
+            else:
+                to_remove.append(id)
+
+        # Remove is made separately to avoid dictionnary poping while looping over it
+        for id in to_remove:
+            self.remove_player(id)
+
+        # All remaining players are the new ones, add a widget for each one of them
+        for player in players.values():
+            print("add", player)
+            self.add_player(player)
+
+
+class PlayerWidget(QtWidgets.QFrame):
+    def __init__(self, player, parent=None):
+        super(PlayerWidget, self).__init__(parent=parent)
+
+        self.player = player
+        print()
+        print(player)
+        self.setup_ui()
+
+    def setup_ui(self):
+        self.setObjectName(u"player_wid")
+        self.setProperty("elevation", "medium")
+        self.setFixedHeight(64)
+
+        self.lyt = QtWidgets.QHBoxLayout(self)
+        self.lyt.setSpacing(0)
+        self.lyt.setObjectName(u"player_wid_lyt")
+        self.lyt.setContentsMargins(0, 0, 0, 0)
+
+        self.avatar_btn = QtWidgets.QPushButton(self)
+        self.avatar_btn.setObjectName(u"player_avatar_btn")
+        self.avatar_btn.setIcon(QtGui.QIcon(QtGui.QPixmap(os.path.join(RESSOURCES_DIR,
+                                                                              AVATARS[self.player.avatar_id][1]))))
+        self.avatar_btn.setFixedSize(64, 64)
+        self.avatar_btn.setIconSize(QtCore.QSize(48, 48))
+        self.avatar_btn.setCursor(QtCore.Qt.PointingHandCursor)
+
+        self.lyt.addWidget(self.avatar_btn)
+
+        self.name_lbl = QtWidgets.QLabel(self.player.name, self)
+        self.name_lbl.setObjectName(u"player_name_lbl")
+        self.name_lbl.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Black))
+        # self.name_lbl.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.lyt.addWidget(self.name_lbl)
+
+        self.ranks_lyt = QtWidgets.QVBoxLayout()
+        self.ranks_lyt.setObjectName(u"player_ranks_lyt")
+        self.ranks_lyt.setContentsMargins(8, 0, 8, 0)
+
+        self.lyt.addLayout(self.ranks_lyt)
+
+        self.score_lbl = QtWidgets.QLabel(self)
+        self.score_lbl.setText(str(self.player.score))
+        self.score_lbl.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Black))
+        self.score_lbl.setAlignment(QtCore.Qt.AlignRight)
+        self.score_lbl.setObjectName(u"player_score_lbl")
+
+        self.ranks_lyt.addWidget(self.score_lbl)
+
+        self.upnext_lbl = QtWidgets.QLabel(self)
+        self.upnext_lbl.setObjectName(u"player_upnext_lbl")
+
+        self.ranks_lyt.addWidget(self.upnext_lbl)
+
+    def update_player(self, player):
+        self.player = player
+        self.score_lbl.setText(str(self.player.score))
+
+
+if __name__ == '__main__':
+    import game
+    app = QtWidgets.QApplication([])
+
+    wid = PlayerListWidget()
+    player = game.Player()
+    player.name = "Daexs"
+    player.score = 123
+    player.avatar_id = 3
+
+    wid.show()
+
+    wid.add_player(player)
+
+    app.exec_()
