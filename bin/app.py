@@ -2,8 +2,8 @@ from PySide2 import QtWidgets, QtCore, QtGui
 
 import os
 import sys
-import pickle
 
+from lib import utils
 from network import client
 from constants import RESSOURCES_DIR
 from network.constants import *
@@ -82,7 +82,7 @@ class Skribble(client.SkribbleClient):
             if pid == self.id:
                 self.game_widget.start_drawing(word, time)
             else:
-                self.game_widget.start_guessing(time)
+                self.game_widget.start_guessing(utils.make_preview(word), time)
 
         elif typ == ADD_PLAYER:
             pass

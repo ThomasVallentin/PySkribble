@@ -201,16 +201,17 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.set_current_word(word)
         self.start_progress_timer(time)
 
-    def start_guessing(self, time):
+    def start_guessing(self, preview, time):
         # Conforming the window state
         self.start_btn.hide()
         self.paint_wid.lock()
         self.paint_wid.paint_view.clear()
 
+        self.set_current_word(preview)
         self.start_progress_timer(time)
 
     def set_current_word(self, word):
-        self.time_progressbar.setFormat("_ " * len(word))
+        self.time_progressbar.setFormat(word)
 
     def start_game(self):
         self.start_btn.hide()

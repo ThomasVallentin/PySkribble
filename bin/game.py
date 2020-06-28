@@ -6,6 +6,7 @@ import random
 
 from constants import RESSOURCES_DIR
 from lib import logger
+from lib import utils
 
 
 class Player(object):
@@ -160,7 +161,7 @@ class GameLogic(QtCore.QObject):
 
         self.logger.info(f"{player.name} made a guess : {guess}")
 
-        if guess != self.current_word:
+        if utils.words_match(guess, self.current_word):
             self.logger.info(f"{player.name} was wrong...")
             return
 
