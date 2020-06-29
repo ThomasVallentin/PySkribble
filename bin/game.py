@@ -161,7 +161,7 @@ class GameLogic(QtCore.QObject):
 
         self.logger.info(f"{player.name} made a guess : {guess}")
 
-        if utils.words_match(guess, self.current_word):
+        if not utils.words_match(guess, self.current_word):
             self.logger.info(f"{player.name} was wrong...")
             return
 

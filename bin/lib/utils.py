@@ -12,7 +12,7 @@ def words_match(word1, word2):
 def make_preview(word):
     res = ""
     for i, part in enumerate(re.split("(\W|\s)", word)):
-        if i%2:
+        if i % 2:
             res += part
         else:
             res += "_" * len(part)
