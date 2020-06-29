@@ -1,7 +1,7 @@
 import os
 
-ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
-RESSOURCES_DIR = os.path.join(ROOT_DIR, "bin", "gui", "ressources")
+ROOT_DIR = os.path.dirname(__file__)
+RESSOURCES_DIR = os.path.join(ROOT_DIR, "ressources")
 
 AVATARS = (("Chandler", os.path.join(RESSOURCES_DIR, "avatars", "Chandler.png")),
            ("Gael", os.path.join(RESSOURCES_DIR, "avatars", "Gael.png")),
