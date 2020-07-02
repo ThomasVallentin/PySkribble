@@ -10,7 +10,6 @@ sys.path.insert(0, ROOT_DIR)
 from app import Skribble
 
 
-
 app = QtWidgets.QApplication([])
 app.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(os.path.join(RESSOURCES_DIR, "window_icon.png"))))
 

@@ -1,13 +1,11 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 
-import os
-
 from constants import *
 
 
-class PlayerListWidget(QtWidgets.QWidget):
+class PlayersWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
-        super(PlayerListWidget, self).__init__(parent=parent)
+        super(PlayersWidget, self).__init__(parent=parent)
 
         self.player_items = {}
 
@@ -163,7 +161,7 @@ if __name__ == '__main__':
     import game
     app = QtWidgets.QApplication([])
 
-    wid = PlayerListWidget()
+    wid = PlayersWidget()
     player = game.Player()
     player.name = "Daexs"
     player.score = 123

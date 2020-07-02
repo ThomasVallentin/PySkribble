@@ -2,7 +2,7 @@ from PySide2 import QtWidgets, QtCore, QtGui
 
 from constants import *
 
-from gui.components import playerListWidget as plywid
+from gui.components import playersWidget as plywid
 from gui.components import chatWidget as chtwid
 from gui.components import paintWidget as pntwid
 from gui.components import choiceWidget as chcdial
@@ -92,7 +92,7 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.game_wid_lyt.setObjectName("game_wid_lyt")
         self.game_wid_lyt.setContentsMargins(0, 0, 0, 0)
 
-        self.players_wid = plywid.PlayerListWidget(self.game_wid)
+        self.players_wid = plywid.PlayersWidget(self.game_wid)
         self.players_wid.setObjectName("players_wid")
         self.players_wid.setProperty("elevation", "medium")
 
