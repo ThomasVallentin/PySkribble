@@ -26,7 +26,8 @@ exe = EXE(pyz,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
-          console=True )
+          console=False,
+          icon=r"C:\Users\Margaux TAMIC\PycharmProjects\skribble\bin\ressources\WindowIcon.ico")
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
