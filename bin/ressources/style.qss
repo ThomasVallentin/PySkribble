@@ -273,3 +273,12 @@ QProgressBar::chunk {
     border: none;
     width: 1px;
 }
+
+QMenu{
+    background-color: #222222;
+    color: #aaaaaa;
+    padding: 10px;
+}
+QMenu::item:selected{
+    background-color: #333333;
+}

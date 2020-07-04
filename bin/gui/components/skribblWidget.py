@@ -92,11 +92,17 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.game_wid_lyt.setObjectName("game_wid_lyt")
         self.game_wid_lyt.setContentsMargins(0, 0, 0, 0)
 
-        self.players_wid = plywid.PlayersWidget(self.game_wid)
-        self.players_wid.setObjectName("players_wid")
-        self.players_wid.setProperty("elevation", "medium")
+        self.players_wid_cont = QtWidgets.QWidget(self.game_wid)
+        self.players_wid_cont.setObjectName("players_wid_container")
+        self.players_wid_cont.setProperty("elevation", "medium")
+        self.players_wid_cont.setLayout(QtWidgets.QVBoxLayout())
 
-        self.game_wid_lyt.addWidget(self.players_wid)
+        self.game_wid_lyt.addWidget(self.players_wid_cont)
+
+        self.players_wid = plywid.PlayersWidget(self.players_wid_cont)
+        # self.players_wid.setObjectName("players_wid")
+
+        self.players_wid_cont.layout().addWidget(self.players_wid)
 
         self.paint_and_guess_wid = QtWidgets.QWidget(self.game_wid)
         self.paint_and_guess_wid.setObjectName("paint_and_guess_wid")
@@ -107,7 +113,6 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.paint_and_guess_wid_lyt.setContentsMargins(16, 16, 16, 16)
 
         self.paint_wid = pntwid.PaintWidget(self.paint_and_guess_wid)
-        # self.paint_wid.blockSignals(True)
         self.paint_wid.setObjectName("paint_wid")
 
         self.paint_and_guess_wid_lyt.addWidget(self.paint_wid)

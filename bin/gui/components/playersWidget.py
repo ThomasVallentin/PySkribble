@@ -1,4 +1,5 @@
 from PySide2 import QtWidgets, QtCore, QtGui
+import qtawesome as qta
 
 from constants import *
 
@@ -44,6 +45,7 @@ class PlayersWidget(QtWidgets.QWidget):
 
         self.player_list_wid = QtWidgets.QListWidget(self)
         self.player_list_wid.setSpacing(4)
+        self.player_list_wid.setStyleSheet("padding: 4px; border: none;")
         self.player_list_wid.setObjectName(u"player_list_wid")
         self.player_list_wid.setProperty("elevation", "low")
 
@@ -60,7 +62,7 @@ class PlayersWidget(QtWidgets.QWidget):
 
         item.widget = widget
         item.setFlags(QtCore.Qt.ItemIsEnabled)
-        item.setSizeHint(QtCore.QSize(0, 64))
+        item.setSizeHint(QtCore.QSize(0, 80))
 
         self.player_items[player.id] = item
 
@@ -102,24 +104,26 @@ class PlayerWidget(QtWidgets.QFrame):
         super(PlayerWidget, self).__init__(parent=parent)
 
         self.player = player
-        print()
-        print(player)
         self.setup_ui()
+        self.setup_menu()
 
     def setup_ui(self):
         self.setObjectName(u"player_wid")
         self.setProperty("elevation", "medium")
-        self.setFixedHeight(64)
+        self.setCursor(QtCore.Qt.PointingHandCursor)
+        self.setStyleSheet("PlayerWidget{padding: 8px;}"
+                           "PlayerWidget:hover{background-color:#333333}")
+        self.setFixedHeight(80)
 
         self.lyt = QtWidgets.QHBoxLayout(self)
-        self.lyt.setSpacing(0)
+        self.lyt.setSpacing(8)
         self.lyt.setObjectName(u"player_wid_lyt")
         self.lyt.setContentsMargins(0, 0, 0, 0)
 
         self.avatar_btn = QtWidgets.QPushButton(self)
         self.avatar_btn.setObjectName(u"player_avatar_btn")
         self.avatar_btn.setIcon(QtGui.QIcon(QtGui.QPixmap(os.path.join(RESSOURCES_DIR,
-                                                                              AVATARS[self.player.avatar_id][1]))))
+                                                                       AVATARS[self.player.avatar_id][1]))))
         self.avatar_btn.setFixedSize(64, 64)
         self.avatar_btn.setIconSize(QtCore.QSize(48, 48))
         self.avatar_btn.setCursor(QtCore.Qt.PointingHandCursor)
@@ -151,6 +155,17 @@ class PlayerWidget(QtWidgets.QFrame):
         self.upnext_lbl.setObjectName(u"player_upnext_lbl")
 
         self.ranks_lyt.addWidget(self.upnext_lbl)
+
+    def setup_menu(self):
+        self.menu = QtWidgets.QMenu(self.player.name, self)
+        self.menu.setContentsMargins(0, 0, 0, 0)
+        self.menu.setStyleSheet("padding: 0;")
+
+        action = QtWidgets.QAction(qta.icon("fa5s.comment-dots", color="#aaaaaa"), "Private message", self.menu)
+        self.menu.addAction(action)
+
+    def mousePressEvent(self, event):
+        self.menu.exec_(self.mapToGlobal(event.pos()))
 
     def update_player(self, player):
         self.player = player
