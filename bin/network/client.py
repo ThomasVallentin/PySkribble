@@ -1,6 +1,7 @@
 import pickle
 
 from lib.client import Client
+from lib.server import recv_msg
 from network.constants import *
 
 
@@ -27,7 +28,7 @@ class SkribbleClient(Client):
 
         try:
             self.connect()
-        except OSError as e:
+        except Exception as e:
             return e
 
         self.send_player()
@@ -37,7 +38,7 @@ class SkribbleClient(Client):
 
     def send_player(self):
         self.send_message(ADD_PLAYER, (self._name, self._avatar_id))
-        self.id = pickle.loads(self.socket.recv(BUFFER_SIZE))
+        self.id = pickle.loads(recv_msg(self.socket))
 
     def send_guess(self, guess):
         self.send_message(GUESS, guess)
@@ -56,6 +57,7 @@ class SkribbleClient(Client):
 
     def process_message(self, typ, data):
         super(SkribbleClient, self).process_message(typ, data)
+
         if typ == GAME_DATA:
             self.update_game(data)
 

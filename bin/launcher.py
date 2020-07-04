@@ -1,11 +1,6 @@
-import os
-import sys
-
 from PySide2 import QtWidgets, QtGui
 
 from constants import *
-
-sys.path.insert(0, ROOT_DIR)
 
 from app import Skribble
 

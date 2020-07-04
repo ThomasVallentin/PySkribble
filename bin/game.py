@@ -49,7 +49,7 @@ class GameLogic(QtCore.QObject):
 
     def __init__(self):
         super(GameLogic, self).__init__()
-        self.logger = logger.Logger(self.__class__.__name__, logger.DEBUG)
+        self.logger = logger.Logger(self.__class__.__name__, logger.INFO)
         self.words = []
         self.remaining_words = []
 
@@ -252,6 +252,9 @@ class GameLogic(QtCore.QObject):
 
     def end_round(self):
         self.drawing_phase = False
+
+        for player in self.game_data.players:
+            player.has_found = False
 
         self.round_ended.emit()
         self.display_scores()

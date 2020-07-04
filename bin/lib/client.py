@@ -4,7 +4,7 @@ from PySide2 import QtCore
 from network.constants import *
 
 
-from lib import logger
+from lib import logger, server
 
 
 class ListeningThread(QtCore.QThread):
@@ -12,6 +12,7 @@ class ListeningThread(QtCore.QThread):
 
     def __init__(self, ip, port):
         super(ListeningThread, self).__init__()
+        self.logger = logger.Logger("ListeningThread", logger.INFO)
         self.ip = ip
         self.port = port
 
@@ -26,7 +27,8 @@ class ListeningThread(QtCore.QThread):
 
         while True:
             try:
-                data = self.socket.recv(BUFFER_SIZE)
+                data = server.recv_msg(self.socket)
+                print (data)
                 if not data:
                     print("Disconnected")
                     break
@@ -34,7 +36,7 @@ class ListeningThread(QtCore.QThread):
                 self.process_data(data)
 
             except Exception as e:
-                raise
+                raise e
                 break
 
     def process_data(self, data):
@@ -45,14 +47,14 @@ class ListeningThread(QtCore.QThread):
                 self.message_received.emit(message)
             else:
                 self.message_received.emit((-1, message))
-        except:
-            pass
+        except Exception as e:
+            self.logger.debug(e)
 
 
 class Client(object):
     def __init__(self, ip=None, port=None):
         super(Client, self).__init__()
-        self.logger = logger.Logger(self.__class__.__name__, logger.DEBUG)
+        self.logger = logger.Logger(self.__class__.__name__, logger.INFO)
 
         self.ip = ip or socket.gethostname()
         self.port = port or 5555
@@ -70,12 +72,12 @@ class Client(object):
         self.listen()
 
         self.socket.connect(self.address)
-        result = self.socket.recv(BUFFER_SIZE).decode()
+        result = server.recv_msg(self.socket).decode()
 
         return result
 
     def send(self, byts):
-        self.socket.send(byts)
+        server.send_msg(self.socket, byts)
 
     def start(self):
         self.connect()
@@ -89,4 +91,5 @@ class Client(object):
         self.process_message(typ, data)
 
     def process_message(self, typ, data):
-        self.logger.debug(f"{MESSAGE_NAMES.get(typ, MESSAGE_NAMES[-1])} : {data}")
+        pass
+        # self.logger.debug(f"{MESSAGE_NAMES.get(typ, MESSAGE_NAMES[-1])} : {data}")

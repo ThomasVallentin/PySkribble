@@ -12,7 +12,7 @@ from gui.components import connectDialog, skribblWidget
 
 class Skribble(client.SkribbleClient):
     def __init__(self):
-        super(Skribble, self).__init__()
+        super(Skribble, self).__init__(ip="192.168.1.84", port=5555)
 
         self.game_widget = None
 
@@ -65,6 +65,7 @@ class Skribble(client.SkribbleClient):
 
     def process_message(self, typ, data):
         if typ == PAINT:
+            # TODO: Handle the case where I am the painter (skip the painting)
             self.game_widget.paint_wid.paint_from_message(*data)
 
         elif typ == CHOOSING_STARTED:

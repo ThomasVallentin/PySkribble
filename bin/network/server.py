@@ -1,9 +1,9 @@
 from PySide2 import QtCore
 
-from bin import game
+import game
 import pickle
 
-from lib.server import Server, Connection
+from lib.server import Server, Connection, send_msg
 from network.constants import *
 from constants import AVATARS
 
@@ -16,10 +16,10 @@ class SkribbleConnection(Connection):
         self.player = None
 
     def send_message(self, typ, data):
-        self.socket.send(pickle.dumps((typ, data)))
+        send_msg(self.socket, pickle.dumps((typ, data)))
 
     def send_data(self, data):
-        self.socket.send(pickle.dumps(data))
+        send_msg(self.socket, pickle.dumps(data))
 
     @property
     def game(self):
