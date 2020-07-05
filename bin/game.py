@@ -50,7 +50,7 @@ class GameLogic(QtCore.QObject):
 
     choosing_started = QtCore.Signal(str, list, int)
     drawing_started = QtCore.Signal(str, str, int)
-    player_guessed = QtCore.Signal(str)
+    player_guessed = QtCore.Signal(str, int)
 
     def __init__(self):
         super(GameLogic, self).__init__()
@@ -179,7 +179,7 @@ class GameLogic(QtCore.QObject):
 
         player.has_found = True
         self.found_players_count += 1
-        self.player_guessed.emit(player.id)
+        self.player_guessed.emit(player.id, self.found_players_count)
 
         player_rank = self.found_players_count
         bonus = self.bonus_rules.get(self.found_players_count, 0)

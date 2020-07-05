@@ -88,10 +88,11 @@ class Skribble(client.SkribbleClient):
             self.game_widget.set_drawing_player(pid)
 
         elif typ == PLAYER_GUESSED:
-            if data == self.id:
-                self.game_widget.guess_was_right()
+            pid, rank = data
+            if pid == self.id:
+                self.game_widget.guess_was_right(rank)
 
-            self.game_widget.set_player_has_found(data)
+            self.game_widget.set_player_has_found(pid)
 
         elif typ == ADD_PLAYER:
             pass

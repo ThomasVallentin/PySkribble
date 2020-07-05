@@ -152,8 +152,8 @@ class SkribbleServer(Server):
     def send_drawing_started(self, player_id, word, time):
         self.send_message_to_listeners(DRAWING_STARTED, (player_id, word, time))
 
-    def send_player_guessed(self, player_id):
-        self.send_message_to_listeners(PLAYER_GUESSED, player_id)
+    def send_player_guessed(self, player_id, rank):
+        self.send_message_to_listeners(PLAYER_GUESSED, (player_id, rank))
 
     def send_message_to_listeners(self, typ, data):
         for connection in self.connections:

@@ -67,5 +67,8 @@ class ColorDialog(QtWidgets.QColorDialog):
                 ColorDialog.hide_recursive(child)
 
 
+
+
+
 if __name__ == '__main__':
     col = QtGui.QColor("#45a658")
