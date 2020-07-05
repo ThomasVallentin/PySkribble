@@ -28,7 +28,7 @@ class ListeningThread(QtCore.QThread):
         while True:
             try:
                 data = server.recv_msg(self.socket)
-                print (data)
+
                 if not data:
                     print("Disconnected")
                     break

@@ -60,18 +60,12 @@ class ColorDialog(QtWidgets.QColorDialog):
 
     @staticmethod
     def hide_recursive(widget):
-        print(widget)
         if isinstance(widget, QtWidgets.QWidget):
-            print("hide")
             widget.hide()
         else:
-            print("recurse")
             for child in widget.children():
                 ColorDialog.hide_recursive(child)
 
 
 if __name__ == '__main__':
     col = QtGui.QColor("#45a658")
-    print(col.value())
-    print(col.toHsl())
-    print(col.toHsv())

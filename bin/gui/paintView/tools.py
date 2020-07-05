@@ -268,7 +268,6 @@ class BucketTool(Tool):
         to_sample = {start_pixel}
         already_added = {start_pixel}
 
-        print(QtGui.QColor.fromRgba(start_color))
         mask = image.createMaskFromColor(start_color)
         white = QtGui.qRgb(255, 255, 255)
 

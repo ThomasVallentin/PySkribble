@@ -95,7 +95,6 @@ class PlayersWidget(QtWidgets.QWidget):
 
         # All remaining players are the new ones, add a widget for each one of them
         for player in players.values():
-            print("add", player)
             self.add_player(player)
 
 
