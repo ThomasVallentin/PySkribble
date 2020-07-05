@@ -67,7 +67,14 @@ class ColorDialog(QtWidgets.QColorDialog):
                 ColorDialog.hide_recursive(child)
 
 
+def pixmap_to_bytes(pixmap, save_type="PNG"):
+    bytarr = QtCore.QByteArray()
+    buf = QtCore.QBuffer(bytarr)
+    buf.open(QtCore.QIODevice.WriteOnly)
 
+    pixmap.save(buf, save_type)
+
+    return bytarr.data()
 
 
 if __name__ == '__main__':

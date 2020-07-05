@@ -6,7 +6,6 @@ from gui.utils import ColorDialog, PainterContext
 from gui.paintView.tools import Tool
 from gui.paintView import painting as paint
 
-
 logger = log.Logger("PaintView", level=log.INFO)
 
 
@@ -23,16 +22,23 @@ class Scene(QtWidgets.QGraphicsScene):
         self.add_layer(base_color=base_color)
         self.set_current_layer(0)
 
-    @property
-    def pixmap(self):
-        return self.layers[0].pixmap()
-
-    def add_layer(self, base_color=QtCore.Qt.transparent):
+    def add_layer(self, base_color=QtCore.Qt.transparent, switch=True):
         pixmap = QtGui.QPixmap(self.width(), self.height())
         pixmap.fill(base_color)
 
-        item = self.addPixmap(pixmap)
-        self.layers.append(item)
+        layer = self.addPixmap(pixmap)
+
+        self.layers.append(layer)
+
+        if switch:
+            self.current_layer = layer
+
+    def fill_layer(self, layer_index, color):
+        layer = self.layers[layer_index]
+        pixmap = layer.pixmap()
+        pixmap.fill(color)
+
+        layer.setPixmap(pixmap)
 
     def set_current_layer(self, index):
         self.current_layer = self.layers[index]
@@ -79,10 +85,6 @@ class PaintView(QtWidgets.QGraphicsView):
     @property
     def locked(self):
         return self._locked
-
-    @property
-    def pixmap(self):
-        return self.scene.pixmap
 
     # == COLOR =====================================================================================
 

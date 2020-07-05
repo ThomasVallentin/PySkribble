@@ -77,7 +77,6 @@ def erase_line(pixmap, pos1, pos2, width):
 
 
 def bucket_fill(pixmap, pos, fill_color):
-    print("pixmap, pos, fill_color :", pixmap, pos, fill_color)
     start_pixel = pos.x(), pos.y()
     image = pixmap.toImage()
 
@@ -87,7 +86,6 @@ def bucket_fill(pixmap, pos, fill_color):
         start_pixel[0] > image_width or
         start_pixel[1] < 0 or
         start_pixel[1] > image_width):
-        print ("return")
         return
 
     start_color = image.pixel(*start_pixel)

@@ -1,7 +1,8 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 import qtawesome as qta
 
-from constants import *
+
+from gui.constants import *
 
 
 class PlayersWidget(QtWidgets.QWidget):
@@ -125,7 +126,7 @@ class PlayerWidget(QtWidgets.QFrame):
         self.setCursor(QtCore.Qt.PointingHandCursor)
         self.setStyleSheet("PlayerWidget{padding: 8px;}"
                            "PlayerWidget:hover{background-color:#333333}")
-        self.setFixedHeight(80)
+        self.setFixedHeight(AVATAR_SIZE + 16)
 
         self.lyt = QtWidgets.QHBoxLayout(self)
         self.lyt.setSpacing(8)
@@ -133,13 +134,13 @@ class PlayerWidget(QtWidgets.QFrame):
         self.lyt.setContentsMargins(0, 0, 0, 0)
 
         self.avatar_icon = QtWidgets.QLabel(self)
+        self.avatar_icon.setStyleSheet("border-radius: 8px")
         self.avatar_icon.setObjectName(u"player_avatar_icon")
-        self.avatar_icon.setPixmap(QtGui.QPixmap(os.path.join(RESSOURCES_DIR,
-                                                              AVATARS[self.player.avatar_id][1]))
-                                  .scaledToHeight(48, QtCore.Qt.SmoothTransformation))
-        self.avatar_icon.setFixedSize(64, 64)
+        self.avatar_icon.setFixedSize(AVATAR_SIZE, AVATAR_SIZE)
         self.avatar_icon.setAlignment(QtCore.Qt.AlignCenter)
         self.avatar_icon.setCursor(QtCore.Qt.PointingHandCursor)
+
+        self.load_avatar()
 
         self.lyt.addWidget(self.avatar_icon)
 
@@ -175,6 +176,12 @@ class PlayerWidget(QtWidgets.QFrame):
 
         action = QtWidgets.QAction(qta.icon("fa5s.comment-dots", color="#aaaaaa"), "Private message", self.menu)
         self.menu.addAction(action)
+
+    def load_avatar(self):
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(self.player.avatar, "PNG")
+
+        self.avatar_icon.setPixmap(pixmap)
 
     def mousePressEvent(self, event):
         self.menu.exec_(self.mapToGlobal(event.pos()))
