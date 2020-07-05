@@ -103,7 +103,6 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.game_wid_lyt.addWidget(self.players_wid_cont)
 
         self.players_wid = plywid.PlayersWidget(self.players_wid_cont)
-        # self.players_wid.setObjectName("players_wid")
 
         self.players_wid_cont.layout().addWidget(self.players_wid)
 

@@ -14,6 +14,7 @@ class PlayersWidget(QtWidgets.QWidget):
 
     def setup_ui(self):
         self.setMinimumWidth(350)
+        self.setObjectName("players_widget")
 
         self.lyt = QtWidgets.QVBoxLayout(self)
         self.lyt.setObjectName(u"players_wid_lyt")
