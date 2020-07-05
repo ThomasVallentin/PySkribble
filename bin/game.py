@@ -18,6 +18,7 @@ class Player(object):
         self.is_master = False
         self.has_found = False
         self.is_winner = False
+        self.is_drawing = False
 
         self.id = hex(id(self))
 
@@ -36,16 +37,20 @@ class GameData(object):
         self.choosing_time = 30000
         self.drawing_time = 50000
 
-        self.choosing_player = None
+        self.drawing_player = None
         self.found_players_count = 0
 
 
 class GameLogic(QtCore.QObject):
     game_started = QtCore.Signal()
     game_ended = QtCore.Signal()
+
+    round_started = QtCore.Signal()
+    round_ended = QtCore.Signal()
+
     choosing_started = QtCore.Signal(str, list, int)
     drawing_started = QtCore.Signal(str, str, int)
-    round_ended = QtCore.Signal()
+    player_guessed = QtCore.Signal(str)
 
     def __init__(self):
         super(GameLogic, self).__init__()
@@ -88,14 +93,18 @@ class GameLogic(QtCore.QObject):
     def start_choosing(self):
         self.choosing_phase = True
 
-        self.game_data.choosing_player = self.player_from_id(self.game_data.player_queue[0])
+        if self.game_data.drawing_player:
+            self.game_data.drawing_player.is_drawing = False
 
-        self.logger.info(f"{self.game_data.choosing_player.name} is choosing...")
+        self.game_data.drawing_player = self.player_from_id(self.game_data.player_queue[0])
+        self.game_data.drawing_player.is_drawing = True
+
+        self.logger.info(f"{self.game_data.drawing_player.name} is choosing...")
 
         self.choosing_timer.start(self.game_data.choosing_time)
         self.choosing_timer.timeout.connect(lambda: self.logger.debug("TIMEOUT"))
 
-        self.choosing_started.emit(self.game_data.choosing_player.id, self.game_data.choices, self.game_data.choosing_time)
+        self.choosing_started.emit(self.game_data.drawing_player.id, self.game_data.choices, self.game_data.choosing_time)
 
     def _select_word(self, index):
         self.current_word = self.game_data.choices[index]
@@ -110,7 +119,7 @@ class GameLogic(QtCore.QObject):
         if not isinstance(index, int):
             return
 
-        if player is not self.game_data.choosing_player:
+        if player is not self.game_data.drawing_player:
             return
 
         if index >= self.game_data.choices_count:
@@ -139,7 +148,7 @@ class GameLogic(QtCore.QObject):
 
         self.found_players_count = 0
 
-        self.drawing_started.emit(self.game_data.choosing_player.id, self.current_word, self.game_data.drawing_time)
+        self.drawing_started.emit(self.game_data.drawing_player.id, self.current_word, self.game_data.drawing_time)
         self.drawing_timer.start(self.game_data.drawing_time)
 
         # def random_guess():
@@ -156,7 +165,10 @@ class GameLogic(QtCore.QObject):
         if not isinstance(guess, str):
             return
 
-        if player is self.game_data.choosing_player:
+        if player is self.game_data.drawing_player:
+            return
+
+        if player.has_found:
             return
 
         self.logger.info(f"{player.name} made a guess : {guess}")
@@ -167,6 +179,7 @@ class GameLogic(QtCore.QObject):
 
         player.has_found = True
         self.found_players_count += 1
+        self.player_guessed.emit(player.id)
 
         player_rank = self.found_players_count
         bonus = self.bonus_rules.get(self.found_players_count, 0)
@@ -179,11 +192,11 @@ class GameLogic(QtCore.QObject):
             self.logger.info(f"He got {bonus} bonus points because he was {player_rank}")
 
         for ply in self.game_data.players.values():
-            if not ply.has_found and ply is not self.game_data.choosing_player:
+            if not ply.has_found and ply is not self.game_data.drawing_player:
                 break
         else:
             self.logger.info("All players have found the word, going to the next round...")
-            self.game_data.choosing_player.score += self.compute_drawer_points(remaining_time=self.drawing_timer.remainingTime())
+            self.game_data.drawing_player.score += self.compute_drawer_points(remaining_time=self.drawing_timer.remainingTime())
             self.drawing_timer.stop()
             self.end_round()
 
@@ -247,13 +260,16 @@ class GameLogic(QtCore.QObject):
 
     def start_round(self):
         self.logger.info("It is time for a new round...")
+
+        self.round_started.emit()
+
         self.generate_choices()
         self.start_choosing()
 
     def end_round(self):
         self.drawing_phase = False
 
-        for player in self.game_data.players:
+        for player in self.game_data.players.values():
             player.has_found = False
 
         self.round_ended.emit()

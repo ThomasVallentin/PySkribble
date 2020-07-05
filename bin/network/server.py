@@ -57,8 +57,6 @@ class SkribbleConnection(Connection):
 
         elif typ == GUESS:
             self.server.guess_received.emit(self.player, data)
-
-            self.server.send_message_to_listeners(GAME_DATA, self.game_data)
             return True
 
         elif typ == CHOICE:
@@ -124,9 +122,13 @@ class SkribbleServer(Server):
         self.start_game_requested.connect(self.game.start)
 
         self.game.game_started.connect(self.send_game_started)
+
+        self.game.round_started.connect(self.send_round_started)
+        self.game.round_ended.connect(self.send_game_data)
+
         self.game.choosing_started.connect(self.send_choosing_started)
         self.game.drawing_started.connect(self.send_drawing_started)
-        self.game.round_ended.connect(self.send_game_data)
+        self.game.player_guessed.connect(self.send_player_guessed)
 
     def connection_ended(self, connection):
         if connection.player:
@@ -141,11 +143,17 @@ class SkribbleServer(Server):
     def send_game_data(self):
         self.send_message_to_listeners(GAME_DATA, self.game.game_data)
 
-    def send_choosing_started(self, player, choices, time):
-        self.send_message_to_listeners(CHOOSING_STARTED, (player, choices, time))
+    def send_round_started(self):
+        self.send_message_to_listeners(ROUND_STARTED, True)
 
-    def send_drawing_started(self, player, word, time):
-        self.send_message_to_listeners(DRAWING_STARTED, (player, word, time))
+    def send_choosing_started(self, player_id, choices, time):
+        self.send_message_to_listeners(CHOOSING_STARTED, (player_id, choices, time))
+
+    def send_drawing_started(self, player_id, word, time):
+        self.send_message_to_listeners(DRAWING_STARTED, (player_id, word, time))
+
+    def send_player_guessed(self, player_id):
+        self.send_message_to_listeners(PLAYER_GUESSED, player_id)
 
     def send_message_to_listeners(self, typ, data):
         for connection in self.connections:

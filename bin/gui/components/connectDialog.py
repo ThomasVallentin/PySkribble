@@ -144,7 +144,7 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
         self.next_avatar_btn = IconButton(("fa5s.chevron-circle-right", "#FF0058"), parent=self)
         self.next_avatar_btn.setStyleSheet("background-color: transparent;")
         self.next_avatar_btn.setFixedSize(32, 32)
-        self.next_avatar_btn.setIconSize(QtCore.QSize(32,32))
+        self.next_avatar_btn.setIconSize(QtCore.QSize(32, 32))
         self.next_avatar_btn.setCursor(QtCore.Qt.PointingHandCursor)
         self.avatar_choice_lyt.addWidget(self.next_avatar_btn)
 
@@ -169,7 +169,6 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
 
     def connect_to_socket(self):
         host = self.host_lne.text()
-        print(host, self.host_lne.validator().validate(host, 0))
         if not self.host_lne.validator().validate(host, 0)[0] == QtGui.QValidator.Acceptable:
             self.status_line.setText("Host format is not valid. Try something like 192.168.1.84")
             return

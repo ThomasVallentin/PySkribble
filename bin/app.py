@@ -85,11 +85,22 @@ class Skribble(client.SkribbleClient):
             else:
                 self.game_widget.start_guessing(utils.make_preview(word), time)
 
+            self.game_widget.set_drawing_player(pid)
+
+        elif typ == PLAYER_GUESSED:
+            if data == self.id:
+                self.game_widget.guess_was_right()
+
+            self.game_widget.set_player_has_found(data)
+
         elif typ == ADD_PLAYER:
             pass
 
         elif typ == REMOVE_PLAYER:
             pass
+
+        elif typ == ROUND_STARTED:
+            self.game_widget.start_round()
 
         elif typ == GAME_STARTED:
             self.game_widget.start_game()

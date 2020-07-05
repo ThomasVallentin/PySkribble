@@ -56,6 +56,18 @@ class PlayersWidget(QtWidgets.QWidget):
 
         self.lyt.addWidget(self.player_list_wid)
 
+    def set_player_has_found(self, player_id):
+        self.player_items[player_id].widget.setStyleSheet("color: #1E90FF;")
+
+    def set_drawing_player(self, player_id):
+        for item in self.player_items.values():
+            if player_id == item.widget.player.id:
+                item.widget.player.is_drawing = True
+                item.widget.setStyleSheet("color: gold;")
+            else:
+                item.widget.player.is_drawing = False
+                item.widget.setStyleSheet("")
+
     def add_player(self, player):
         item = QtWidgets.QListWidgetItem()
         widget = PlayerWidget(player, self)
@@ -133,7 +145,6 @@ class PlayerWidget(QtWidgets.QFrame):
         self.name_lbl = QtWidgets.QLabel(self.player.name, self)
         self.name_lbl.setObjectName(u"player_name_lbl")
         self.name_lbl.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Black))
-        # self.name_lbl.setAlignment(QtCore.Qt.AlignCenter)
 
         self.lyt.addWidget(self.name_lbl)
 
@@ -169,6 +180,14 @@ class PlayerWidget(QtWidgets.QFrame):
 
     def update_player(self, player):
         self.player = player
+
+        if self.player.has_found:
+            self.setStyleSheet("color: #1E90FF")
+        elif self.player.is_drawing:
+            self.setStyleSheet("color: gold")
+        else:
+            self.setStyleSheet("")
+
         self.score_lbl.setText(str(self.player.score))
 
 

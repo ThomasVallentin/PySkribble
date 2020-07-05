@@ -5,7 +5,6 @@ import struct
 import threading
 
 from lib import logger
-from network.constants import BUFFER_SIZE
 
 
 class Connection(QtCore.QThread):
