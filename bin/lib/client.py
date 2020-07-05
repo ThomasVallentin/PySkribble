@@ -56,17 +56,17 @@ class Client(object):
         super(Client, self).__init__()
         self.logger = logger.Logger(self.__class__.__name__, logger.INFO)
 
-        self.ip = ip or socket.gethostname()
+        self.host = ip or socket.gethostname()
         self.port = port or 5555
 
         self.socket = socket.socket()
 
-        self.listening_thread = ListeningThread(self.ip, self.port)
+        self.listening_thread = ListeningThread(self.host, self.port)
         self.listening_thread.message_received.connect(self._process_message)
 
     @property
     def address(self):
-        return self.ip, self.port
+        return self.host, self.port
 
     def connect(self):
         self.listen()

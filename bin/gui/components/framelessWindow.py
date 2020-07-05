@@ -35,7 +35,7 @@ class FramelessWindowMixin(object):
         self.close_btn.setCursor(QtCore.Qt.PointingHandCursor)
         self.close_btn.setFixedSize(32, 32)
         self.close_btn.setIconSize(QtCore.QSize(32, 32))
-        self.lyt.addWidget(self.close_btn, 0, QtCore.Qt.AlignRight)
+        self.menu_lyt.addWidget(self.close_btn, 0, QtCore.Qt.AlignRight)
 
     def make_connections(self):
         self.close_btn.clicked.connect(self.on_close)

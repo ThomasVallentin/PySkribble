@@ -212,29 +212,31 @@ QScrollBar::add-page, QScrollBar::sub-page {
 
 
 QSpinBox, QDoubleSpinBox {
+    padding: 8px;
     border-radius: 3px;
+    color: #aaaaaa;
     background-color: rgba(0, 0, 0, 80);
     text-align: center;
 }
 QSpinBox::up-button, QDoubleSpinBox::up-button {
-    padding-right: 4px;
-    padding-top: 2px;
+    padding-right: 8px;
+    padding-top: 6px;
     width: 7px;
     height: 7px;
-    image: url("bin/gui/ressources/chevron-up.png");
+    image: url("ressources/chevron-up.png");
 }
 QSpinBox::down-button, QDoubleSpinBox::down-button {
-    padding-right: 4px;
-    padding-bottom: 2px;
+    padding-right: 8px;
+    padding-bottom: 6px;
     width: 7px;
     height: 7px;
-    image: url("bin/gui/ressources/chevron-down.png");
+    image: url("ressources/chevron-down.png");
 }
 QSpinBox::up-button:hover, QDoubleSpinBox::up-button:hover {
-    image: url("bin/gui/ressources/chevron-up-pressed.png");
+    image: url("ressources/chevron-up-pressed.png");
 }
 QSpinBox::down-button:hover, QDoubleSpinBox::down-button:hover {
-    image: url("bin/gui/ressources/chevron-down-pressed.png");
+    image: url("ressources/chevron-down-pressed.png");
 }
 QCheckBox::indicator {
     width: 15px;
