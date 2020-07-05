@@ -54,11 +54,21 @@ class PaintWidget(QtWidgets.QWidget):
     def paint_from_message(self, typ, *args):
         if typ == "paint_point":
             self.paint_view.paint_point(QtCore.QPoint(*args[0]), args[1],
-                                        QtGui.QColor(args[2]),
-                                        silent=True)
+                                        QtGui.QColor(args[2]), silent=True)
         elif typ == "paint_line":
             self.paint_view.paint_line(QtCore.QPoint(*args[0]), QtCore.QPoint(*args[1]),
                                        args[2], QtGui.QColor(args[3]), silent=True)
+
+        elif typ == "erase_point":
+            self.paint_view.erase_point(QtCore.QPoint(*args[0]), args[1], silent=True)
+
+        elif typ == "erase_line":
+            self.paint_view.erase_line(QtCore.QPoint(*args[0]), QtCore.QPoint(*args[1]),
+                                       args[2], silent=True)
+
+        if typ == "bucket_fill":
+            self.paint_view.bucket_fill(QtCore.QPoint(*args[0]), QtGui.QColor(args[1]),
+                                        silent=True)
 
     def lock(self):
         self.paint_view.lock()

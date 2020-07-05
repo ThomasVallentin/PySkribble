@@ -180,7 +180,7 @@ class EraserTool(PainterTool):
         if not event.buttons() & QtCore.Qt.LeftButton:
             return False
 
-        self.erase_point(self._prec_pos)
+        self.view.erase_point(self._prec_pos, self.size)
 
         return True
 
@@ -193,39 +193,9 @@ class EraserTool(PainterTool):
 
         pos = self.view.mapToScene(event.pos())
 
-        self.erase_line(self._prec_pos, pos)
+        self.view.erase_line(self._prec_pos, pos, self.size)
 
         self._prec_pos = pos
-
-    def erase_point(self, pos):
-        pixmap = self.view.scene.current_layer.pixmap()
-
-        # Create painter
-        with PainterContext(pixmap) as painter:
-            # Set painter settings
-            painter.setRenderHints(QtGui.QPainter.Antialiasing)
-            painter.setCompositionMode(painter.CompositionMode_Clear)
-            painter.setPen(self.pen)
-
-            # Paint point
-            painter.drawPoint(pos)
-
-        self.view.scene.current_layer.setPixmap(pixmap)
-
-    def erase_line(self, pos1, pos2):
-        pixmap = self.view.scene.current_layer.pixmap()
-
-        # Create painter
-        with PainterContext(pixmap) as painter:
-            # Set painter settings
-            painter.setRenderHints(QtGui.QPainter.Antialiasing)
-            painter.setCompositionMode(painter.CompositionMode_Clear)
-            painter.setPen(self.pen)
-
-            # Paint line
-            painter.drawLine(pos1, pos2)
-
-        self.view.scene.current_layer.setPixmap(pixmap)
 
 
 Tool.register(EraserTool)
@@ -246,75 +216,7 @@ class BucketTool(Tool):
         if not event.buttons() & QtCore.Qt.LeftButton:
             return
 
-        self.fill_color(self.view.mapToScene(event.pos()))
-
-    def fill_color(self, pos):
-        start_pixel = pos.x(), pos.y()
-        pixmap = self.view.scene.current_layer.pixmap()
-        image = pixmap.toImage()
-
-        image_width, image_height = image.width(), image.height()
-
-        if (start_pixel[0] < 0 or
-            start_pixel[0] > image_width or
-            start_pixel[1] < 0 or
-            start_pixel[1] > image_width):
-            return
-
-        start_color = image.pixel(*start_pixel)
-        fill_color = self.color
-        tolerance = self.tolerance / 100. / 4.
-
-        to_sample = {start_pixel}
-        already_added = {start_pixel}
-
-        mask = image.createMaskFromColor(start_color)
-        white = QtGui.qRgb(255, 255, 255)
-
-        while to_sample:
-            # Take one pixel from the set of pixel to sample
-            x, y = to_sample.pop()
-
-            # Get color at pixel
-            mask_color = mask.pixel(x, y)
-
-            # If color matches start_color
-            if mask_color == white:
-                # Fill pixel color with the view's color
-                image.setPixelColor(x, y, fill_color)
-
-                # Schedule adjacent pixels in to_sample and add them to already_added so that
-                # they're not tested again
-
-                # If pixel is not on the most left column, add the pixel at its left
-                if x > 0:
-                    adj = (x - 1, y)
-                    if adj not in already_added:
-                        to_sample.add(adj)
-                        already_added.add(adj)
-
-                # If pixel is not on the most right column, add the pixel at its right
-                if x < image_width:
-                    adj = (x + 1, y)
-                    if adj not in already_added:
-                        to_sample.add(adj)
-                        already_added.add(adj)
-
-                # If pixel is not on the highest row, add the pixel at above it
-                if y > 0:
-                    adj = (x, y - 1)
-                    if adj not in already_added:
-                        to_sample.add(adj)
-                        already_added.add(adj)
-
-                # If pixel is not on the lowest row, add the pixel at under it
-                if y < image_height:
-                    adj = (x, y + 1)
-                    if adj not in already_added:
-                        to_sample.add(adj)
-                        already_added.add(adj)
-
-        self.view.scene.current_layer.setPixmap(QtGui.QPixmap.fromImage(image))
+        self.view.bucket_fill(self.view.mapToScene(event.pos()), self.color)
 
 
 Tool.register(BucketTool)

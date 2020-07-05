@@ -191,8 +191,7 @@ class PaintView(QtWidgets.QGraphicsView):
         self._locked = False
 
     def paint_point(self, pos, width, color, silent=False):
-        pixmap = paint.paint_point(self.scene.current_layer.pixmap(),
-                                   pos, width, color)
+        pixmap = paint.paint_point(self.scene.current_layer.pixmap(), pos, width, color)
 
         self.scene.current_layer.setPixmap(pixmap)
 
@@ -200,8 +199,7 @@ class PaintView(QtWidgets.QGraphicsView):
             self.painted.emit(("paint_point", pos.toTuple(), width, color.name()))
 
     def paint_line(self, pos1, pos2, width, color, silent=False):
-        pixmap = paint.paint_line(self.scene.current_layer.pixmap(),
-                                  pos1, pos2, width, color)
+        pixmap = paint.paint_line(self.scene.current_layer.pixmap(), pos1, pos2, width, color)
 
         self.scene.current_layer.setPixmap(pixmap)
 
@@ -209,6 +207,31 @@ class PaintView(QtWidgets.QGraphicsView):
             self.painted.emit(("paint_line",
                                pos1.toTuple(), pos2.toTuple(),
                                width, color.name()))
+
+    def erase_point(self, pos, width, silent=False):
+        pixmap = paint.erase_point(self.scene.current_layer.pixmap(), pos, width)
+
+        self.scene.current_layer.setPixmap(pixmap)
+
+        if not silent:
+            self.painted.emit(("erase_point", pos.toTuple(), width))
+
+    def erase_line(self, pos1, pos2, width, silent=False):
+        pixmap = paint.erase_line(self.scene.current_layer.pixmap(),
+                                  pos1, pos2, width)
+
+        self.scene.current_layer.setPixmap(pixmap)
+
+        if not silent:
+            self.painted.emit(("erase_line", pos1.toTuple(), pos2.toTuple(), width))
+
+    def bucket_fill(self, pos, color, silent=False):
+        pixmap = paint.bucket_fill(self.scene.current_layer.pixmap(), pos, color)
+
+        self.scene.current_layer.setPixmap(pixmap)
+
+        if not silent:
+            self.painted.emit(("bucket_fill", pos.toTuple(), color.name()))
 
 
 if __name__ == '__main__':
