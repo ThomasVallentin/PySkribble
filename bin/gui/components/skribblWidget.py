@@ -118,7 +118,7 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
 
         self.paint_and_guess_wid_lyt.addWidget(self.paint_wid)
 
-        self.start_lyt = QtWidgets.QVBoxLayout(self.paint_wid.paint_view)
+        self.paint_wid_lyt = QtWidgets.QVBoxLayout(self.paint_wid.paint_view)
 
         self.start_btn = QtWidgets.QPushButton("Start game !", self)
         self.start_btn.setProperty("importance", "secondary")
@@ -129,7 +129,15 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.start_btn.setCursor(QtCore.Qt.PointingHandCursor)
         self.start_btn.setFixedWidth(250)
 
-        self.start_lyt.addWidget(self.start_btn, 0, QtCore.Qt.AlignCenter)
+        self.paint_wid_lyt.addWidget(self.start_btn, 0, QtCore.Qt.AlignCenter)
+
+        self.guess_was_right_lbl = QtWidgets.QLabel("You found it !", self.paint_wid)
+        self.guess_was_right_lbl.setStyleSheet("background-color: transparent; color: #1E90FF")
+        self.guess_was_right_lbl.setFont(QtGui.QFont("Arial", 48, QtGui.QFont.Black))
+        self.guess_was_right_lbl.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.guess_was_right_lbl.hide()
+        self.paint_wid_lyt.addWidget(self.guess_was_right_lbl, 0, QtCore.Qt.AlignCenter)
 
         self.guess_lyt = QtWidgets.QHBoxLayout()
         self.guess_lyt.setObjectName("guess_lyt")
@@ -161,7 +169,7 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
     def make_connections(self):
         super(SkribblWidget, self).make_connections()
         self.start_btn.clicked.connect(self.start_requested.emit)
-        self.guess_lne.editingFinished.connect(self.make_guess)
+        self.guess_lne.text_sent.connect(self.make_guess)
 
     def on_close(self):
         self.client.close()
@@ -222,9 +230,21 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
     def start_game(self):
         self.start_btn.hide()
 
+    def start_round(self):
+        self.guess_was_right_lbl.hide()
+
     def make_guess(self):
         self.guess_made.emit(self.guess_lne.text())
         self.guess_lne.clear()
+
+    def guess_was_right(self):
+        self.guess_was_right_lbl.show()
+
+    def set_player_has_found(self, player_id):
+        self.players_wid.set_player_has_found(player_id)
+
+    def set_drawing_player(self, player_id):
+        self.players_wid.set_drawing_player(player_id)
 
     def start_progress_timer(self, time):
         if self.progress_animation:
