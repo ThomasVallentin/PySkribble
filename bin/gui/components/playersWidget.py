@@ -135,7 +135,7 @@ class PlayerWidget(QtWidgets.QFrame):
         self.avatar_icon = QtWidgets.QLabel(self)
         self.avatar_icon.setObjectName(u"player_avatar_icon")
         self.avatar_icon.setPixmap(QtGui.QPixmap(os.path.join(RESSOURCES_DIR,
-                                                             AVATARS[self.player.avatar_id][1]))
+                                                              AVATARS[self.player.avatar_id][1]))
                                   .scaledToHeight(48, QtCore.Qt.SmoothTransformation))
         self.avatar_icon.setFixedSize(64, 64)
         self.avatar_icon.setAlignment(QtCore.Qt.AlignCenter)

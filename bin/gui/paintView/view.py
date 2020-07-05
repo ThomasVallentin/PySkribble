@@ -1,15 +1,17 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 
-from gui.utils import ColorDialog
+from lib import logger as log
+
+from gui.utils import ColorDialog, PainterContext
 from gui.paintView.tools import Tool
 from gui.paintView import painting as paint
-from lib import logger as log
+
 
 logger = log.Logger("PaintView", level=log.INFO)
 
 
 class Scene(QtWidgets.QGraphicsScene):
-    def __init__(self, view, width=1024, height=1024):
+    def __init__(self, view,  width=1024, height=1024, base_color=QtCore.Qt.transparent):
         super(Scene, self).__init__()
         self.view = view
 
@@ -18,16 +20,16 @@ class Scene(QtWidgets.QGraphicsScene):
 
         self.setSceneRect(0, 0, width, height)
 
-        self.add_layer()
+        self.add_layer(base_color=base_color)
         self.set_current_layer(0)
 
     @property
     def pixmap(self):
         return self.layers[0].pixmap()
 
-    def add_layer(self):
+    def add_layer(self, base_color=QtCore.Qt.transparent):
         pixmap = QtGui.QPixmap(self.width(), self.height())
-        pixmap.fill(QtCore.Qt.transparent)
+        pixmap.fill(base_color)
 
         item = self.addPixmap(pixmap)
         self.layers.append(item)
@@ -48,10 +50,10 @@ class PaintView(QtWidgets.QGraphicsView):
 
     TOOLS = Tool.tools
 
-    def __init__(self, parent=None, width=1024, height=1024):
+    def __init__(self, parent=None, width=1024, height=1024, base_color=QtCore.Qt.transparent):
         super(PaintView, self).__init__(parent=parent)
 
-        self.scene = Scene(self, width, height)
+        self.scene = Scene(self, width=width, height=height, base_color=base_color)
         self.setScene(self.scene)
 
         self._locked = False
@@ -71,6 +73,8 @@ class PaintView(QtWidgets.QGraphicsView):
         self.install_tools(self.TOOLS)
 
         self.set_tool("BrushTool")
+
+        self.setMouseTracking(True)
 
     @property
     def locked(self):
@@ -142,9 +146,7 @@ class PaintView(QtWidgets.QGraphicsView):
         # Propagate event to the current tool
         self.tool.on_press(event)
 
-        # If right click is pressed : show color dialog
-        if event.buttons() & QtCore.Qt.RightButton:
-            self.color_dialog_requested(self.mapToGlobal(event.pos()))
+        self.setCursor(self.tool.cursor)
 
         return super(PaintView, self).mousePressEvent(event)
 
@@ -156,6 +158,8 @@ class PaintView(QtWidgets.QGraphicsView):
 
         self.tool.on_move(event)
 
+        self.setCursor(self.tool.cursor)
+
         return super(PaintView, self).mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
@@ -166,8 +170,30 @@ class PaintView(QtWidgets.QGraphicsView):
 
         self.tool.on_release(event)
 
+        self.setCursor(self.tool.cursor)
+
         return super(PaintView, self).mousePressEvent(event)
-    
+
+    def keyPressEvent(self, event):
+        if self.locked:
+            return
+
+        self.tool.on_key_press(event)
+
+        self.setCursor(self.tool.cursor)
+
+        return super(PaintView, self).keyPressEvent(event)
+
+    def keyReleaseEvent(self, event):
+        if self.locked:
+            return
+
+        self.tool.on_key_release(event)
+
+        self.setCursor(self.tool.cursor)
+
+        return super(PaintView, self).keyReleaseEvent(event)
+
     def closeEvent(self, event):
         self.color_dialog.close()
         super(PaintView, self).closeEvent(event)
@@ -223,6 +249,15 @@ class PaintView(QtWidgets.QGraphicsView):
 
         if not silent:
             self.painted.emit(("bucket_fill", pos.toTuple(), color.name()))
+
+    def pick_color(self, pos):
+        pixmap = QtGui.QPixmap(1, 1)
+        with PainterContext(pixmap) as painter:
+            self.render(painter, QtCore.QRectF(0, 0, 1, 1),
+                        QtCore.QRect(*pos.toTuple(), 1, 1))
+
+        pixmap.save("test.png", "PNG")
+        self.color = pixmap.toImage().pixelColor(0, 0)
 
 
 if __name__ == '__main__':

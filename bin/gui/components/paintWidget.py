@@ -16,8 +16,12 @@ class PaintWidget(QtWidgets.QWidget):
     def setup_ui(self):
         self.lyt = QtWidgets.QVBoxLayout(self)
 
-        self.paint_view = PaintView(self, 1000, 562)
+        self.paint_view = PaintView(self, 1000, 562, base_color=QtCore.Qt.white)
         self.paint_view.setStyleSheet("background-color: white;")
+
+        self.paint_view.scene.add_layer()
+        self.paint_view.scene.set_current_layer(-1)
+
         self.lyt.addWidget(self.paint_view)
 
         self.toolbox_lyt = QtWidgets.QHBoxLayout()
