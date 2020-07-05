@@ -14,6 +14,7 @@ class Player(object):
         self.name = None
         self.avatar_id = 0
         self.score = 0
+        self.round_score = 0
 
         self.is_master = False
         self.has_found = False
@@ -151,13 +152,6 @@ class GameLogic(QtCore.QObject):
         self.drawing_started.emit(self.game_data.drawing_player.id, self.current_word, self.game_data.drawing_time)
         self.drawing_timer.start(self.game_data.drawing_time)
 
-        # def random_guess():
-        #     self.make_guess(random.choice(self.game_data.player_queue),
-        #                     self.game_data.choices[random.randint(0, self.game_data.choices_count - 1)])
-        #
-        # QtCore.QTimer.singleShot(random.randint(self.game_data.drawing_time - 2000,
-        #                                         self.game_data.drawing_time), random_guess)
-
     def make_guess(self, player, guess):
         if not self.drawing_phase:
             return
@@ -184,6 +178,7 @@ class GameLogic(QtCore.QObject):
         player_rank = self.found_players_count
         bonus = self.bonus_rules.get(self.found_players_count, 0)
         points = self.compute_guesser_points(self.drawing_timer.remainingTime()) + bonus
+        player.round_score = points
         player.score += points
 
         # Display points
@@ -271,6 +266,7 @@ class GameLogic(QtCore.QObject):
 
         for player in self.game_data.players.values():
             player.has_found = False
+            player.round_score = 0
 
         self.round_ended.emit()
         self.display_scores()
