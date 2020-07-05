@@ -119,15 +119,16 @@ class PlayerWidget(QtWidgets.QFrame):
         self.lyt.setObjectName(u"player_wid_lyt")
         self.lyt.setContentsMargins(0, 0, 0, 0)
 
-        self.avatar_btn = QtWidgets.QPushButton(self)
-        self.avatar_btn.setObjectName(u"player_avatar_btn")
-        self.avatar_btn.setIcon(QtGui.QIcon(QtGui.QPixmap(os.path.join(RESSOURCES_DIR,
-                                                                       AVATARS[self.player.avatar_id][1]))))
-        self.avatar_btn.setFixedSize(64, 64)
-        self.avatar_btn.setIconSize(QtCore.QSize(48, 48))
-        self.avatar_btn.setCursor(QtCore.Qt.PointingHandCursor)
+        self.avatar_icon = QtWidgets.QLabel(self)
+        self.avatar_icon.setObjectName(u"player_avatar_icon")
+        self.avatar_icon.setPixmap(QtGui.QPixmap(os.path.join(RESSOURCES_DIR,
+                                                             AVATARS[self.player.avatar_id][1]))
+                                  .scaledToHeight(48, QtCore.Qt.SmoothTransformation))
+        self.avatar_icon.setFixedSize(64, 64)
+        self.avatar_icon.setAlignment(QtCore.Qt.AlignCenter)
+        self.avatar_icon.setCursor(QtCore.Qt.PointingHandCursor)
 
-        self.lyt.addWidget(self.avatar_btn)
+        self.lyt.addWidget(self.avatar_icon)
 
         self.name_lbl = QtWidgets.QLabel(self.player.name, self)
         self.name_lbl.setObjectName(u"player_name_lbl")
