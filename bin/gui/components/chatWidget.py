@@ -1,6 +1,9 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 
 
+from gui.components import historyTextBar
+
+
 class ChatWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(ChatWidget, self).__init__(parent=parent)
@@ -18,8 +21,7 @@ class ChatWidget(QtWidgets.QWidget):
 
         self.lyt.addWidget(self.chat_message_list_wid)
 
-        self.chat_message_txe = QtWidgets.QTextEdit(self)
-        self.chat_message_txe.setObjectName(u"chat_message_txe")
-        self.chat_message_txe.setFixedHeight(34)
+        self.chat_message_txe = historyTextBar.HistoryTextBar(self)
 
         self.lyt.addWidget(self.chat_message_txe)
+

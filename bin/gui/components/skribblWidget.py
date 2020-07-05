@@ -8,6 +8,7 @@ from gui.components import paintWidget as pntwid
 from gui.components import choiceWidget as chcdial
 
 from gui.components.iconButton import IconButton
+from gui.components import historyTextBar as textbar
 from gui.components.framelessWindow import FramelessWindowMixin
 
 
@@ -140,7 +141,7 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
 
         self.guess_lyt.addWidget(self.guess_lbl)
 
-        self.guess_lne = QtWidgets.QLineEdit(self.paint_and_guess_wid)
+        self.guess_lne = textbar.HistoryTextBar(self.paint_and_guess_wid)
         self.guess_lne.setObjectName("guess_lne")
         self.guess_lne.setFont(QtGui.QFont("SansSerif", 11))
         self.guess_lne.setPlaceholderText("Ex: Pierre qui roule n'amasse pas mousse")
