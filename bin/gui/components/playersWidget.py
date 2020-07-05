@@ -2,6 +2,9 @@ from PySide2 import QtWidgets, QtCore, QtGui
 import qtawesome as qta
 
 
+from gui.constants import *
+
+
 class PlayersWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(PlayersWidget, self).__init__(parent=parent)
@@ -123,7 +126,7 @@ class PlayerWidget(QtWidgets.QFrame):
         self.setCursor(QtCore.Qt.PointingHandCursor)
         self.setStyleSheet("PlayerWidget{padding: 8px;}"
                            "PlayerWidget:hover{background-color:#333333}")
-        self.setFixedHeight(80)
+        self.setFixedHeight(AVATAR_SIZE + 16)
 
         self.lyt = QtWidgets.QHBoxLayout(self)
         self.lyt.setSpacing(8)
@@ -133,7 +136,7 @@ class PlayerWidget(QtWidgets.QFrame):
         self.avatar_icon = QtWidgets.QLabel(self)
         self.avatar_icon.setStyleSheet("border-radius: 8px")
         self.avatar_icon.setObjectName(u"player_avatar_icon")
-        self.avatar_icon.setFixedSize(64, 64)
+        self.avatar_icon.setFixedSize(AVATAR_SIZE, AVATAR_SIZE)
         self.avatar_icon.setAlignment(QtCore.Qt.AlignCenter)
         self.avatar_icon.setCursor(QtCore.Qt.PointingHandCursor)
 

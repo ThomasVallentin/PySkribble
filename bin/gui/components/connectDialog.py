@@ -3,6 +3,7 @@ from PySide2 import QtWidgets, QtCore, QtGui
 import os
 
 from constants import RESSOURCES_DIR
+from gui.constants import AVATAR_SIZE
 
 from gui.components import paintWidget
 from gui.components.framelessWindow import FramelessWindowMixin
@@ -117,13 +118,11 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
     def render_avatar(self):
         # Render scene to pixmap
         scene_rect = self.avatar_paint_wid.paint_view.sceneRect().toRect()
-        dest_rect = QtCore.QRect(0, 0, 64, 64)
+        dest_rect = QtCore.QRect(0, 0, AVATAR_SIZE, AVATAR_SIZE)
         pixmap = QtGui.QPixmap(dest_rect.size())
 
         with gui_utils.PainterContext(pixmap) as painter:
             self.avatar_paint_wid.paint_view.render(painter, dest_rect, scene_rect)
-
-        pixmap = pixmap.scaledToWidth(64, QtCore.Qt.SmoothTransformation)
 
         # Composite the pixmap to make rounded corners
         avatar = QtGui.QPixmap(pixmap.size())
