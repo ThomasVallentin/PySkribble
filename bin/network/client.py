@@ -9,8 +9,8 @@ class SkribbleClient(Client):
     def __init__(self, name=None, ip=None, port=None):
         super(SkribbleClient, self).__init__(ip=ip, port=port)
 
-        self._name = name
-        self._avatar_id = 0
+        self.name = name
+        self.avatar = bytearray()
         self.id = None
         self._game_data = None
 
@@ -23,7 +23,7 @@ class SkribbleClient(Client):
         return self._game_data
 
     def start(self):
-        if not self._name:
+        if not self.name:
             return ValueError("You have to set a name to start the client.")
 
         try:
@@ -37,7 +37,7 @@ class SkribbleClient(Client):
         self.send(pickle.dumps((typ, data)))
 
     def send_player(self):
-        self.send_message(ADD_PLAYER, (self._name, self._avatar_id))
+        self.send_message(ADD_PLAYER, (self.name, self.avatar))
         self.id = pickle.loads(recv_msg(self.socket))
 
     def send_guess(self, guess):

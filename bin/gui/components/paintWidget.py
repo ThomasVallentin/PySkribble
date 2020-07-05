@@ -7,16 +7,16 @@ from gui.paintView.view import PaintView
 class PaintWidget(QtWidgets.QWidget):
     painted = QtCore.Signal(tuple)
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, width=1000, height=562):
         super(PaintWidget, self).__init__(parent=parent)
 
-        self.setup_ui()
+        self.setup_ui(width, height)
         self.make_connections()
 
-    def setup_ui(self):
+    def setup_ui(self, width, height):
         self.lyt = QtWidgets.QVBoxLayout(self)
 
-        self.paint_view = PaintView(self, 1000, 562)
+        self.paint_view = PaintView(self, width, height)
         self.paint_view.setStyleSheet("background-color: white;")
         self.lyt.addWidget(self.paint_view)
 

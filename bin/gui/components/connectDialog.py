@@ -1,14 +1,12 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 
 import os
-import random
-
-from constants import AVATARS
-from gui.components.framelessWindow import FramelessWindowMixin
-from gui.components.iconButton import IconButton
-from gui import utils as gui_utils
 
 from constants import RESSOURCES_DIR
+
+from gui.components import paintWidget
+from gui.components.framelessWindow import FramelessWindowMixin
+from gui import utils as gui_utils
 
 
 class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
@@ -26,16 +24,13 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
         self.setup_ui()
         self.make_connections()
 
-        self.load_avatars()
-        self.set_avatar(random.randint(0, len(AVATARS) - 1))
-
         self.name_lne.setFocus(QtCore.Qt.MouseFocusReason)
 
     def setup_ui(self):
         super(ConnectDialog, self).setup_ui()
 
         self.setWindowModality(QtCore.Qt.ApplicationModal)
-        self.setFixedSize(650, 400)
+        self.setFixedSize(670, 415)
         self.setProperty("elevation", "low")
 
         # MenuBar
@@ -47,7 +42,6 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
 
         self.host_lne = QtWidgets.QLineEdit(self.client.host, self)
         self.host_lne.setFixedSize(110, 34)
-        # self.host_lne.setInputMask("000.000.000.000;")
         valid = QtGui.QRegExpValidator(QtCore.QRegExp("^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"))
         self.host_lne.setValidator(valid)
 
@@ -81,8 +75,6 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
 
         self.logo_lbl = QtWidgets.QLabel(self)
         self.logo_lbl.setPixmap(QtGui.QPixmap(os.path.join(RESSOURCES_DIR, "connect_title.png")))
-        # self.logo_lbl.setText('<p style="line-height: 0.7; font: 32pt Arial black">BETTER<br>SKRIBBL</p>')
-        # self.logo_lbl.setAlignment(QtCore.Qt.AlignCenter)
         self.logo_lbl.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred,
                                                           QtWidgets.QSizePolicy.Expanding))
         self.left_lyt.addWidget(self.logo_lbl)
@@ -109,63 +101,43 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
                                                              QtWidgets.QSizePolicy.Minimum))
         self.status_line.setStyleSheet("color: red;")
         self.status_line.setWordWrap(True)
-        # self.status_line.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Black))
         self.name_lyt.addWidget(self.status_line)
 
-        self.avatar_wid = QtWidgets.QWidget(self)
-        self.avatar_wid.setProperty("elevation", "medium")
-        self.avatar_wid.setStyleSheet("border-radius: 12px;")
-        self.content_lyt.addWidget(self.avatar_wid)
+        self.avatar_paint_wid = paintWidget.PaintWidget(self, 256, 256)
+        self.avatar_paint_wid.paint_view.scene.fill_layer(0, QtCore.Qt.white)
+        self.avatar_paint_wid.paint_view.scene.add_layer()
+        self.avatar_paint_wid.paint_view.scene.set_current_layer(-1)
 
-        self.avatar_lyt = QtWidgets.QVBoxLayout(self.avatar_wid)
-
-        self.avatar_lbl = QtWidgets.QLabel(self)
-        self.avatar_lbl.setFixedWidth(300)
-        self.avatar_lbl.setAlignment(QtCore.Qt.AlignCenter)
-
-        self.avatar_lyt.addWidget(self.avatar_lbl)
-
-        self.avatar_choice_lyt = QtWidgets.QHBoxLayout()
-        self.avatar_lyt.addLayout(self.avatar_choice_lyt)
-
-        self.prev_avatar_btn = IconButton(("fa5s.chevron-circle-left", "#FF0058"), parent=self)
-        self.prev_avatar_btn.setStyleSheet("background-color: transparent;")
-        self.prev_avatar_btn.setFixedSize(32, 32)
-        self.prev_avatar_btn.setIconSize(QtCore.QSize(32,32))
-        self.prev_avatar_btn.setCursor(QtCore.Qt.PointingHandCursor)
-        self.avatar_choice_lyt.addWidget(self.prev_avatar_btn)
-
-        self.avatar_name_lbl = QtWidgets.QLabel()
-        self.avatar_name_lbl.setFixedWidth(150)
-        self.avatar_name_lbl.setAlignment(QtCore.Qt.AlignCenter)
-        self.avatar_name_lbl.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Black))
-        self.avatar_choice_lyt.addWidget(self.avatar_name_lbl)
-
-        self.next_avatar_btn = IconButton(("fa5s.chevron-circle-right", "#FF0058"), parent=self)
-        self.next_avatar_btn.setStyleSheet("background-color: transparent;")
-        self.next_avatar_btn.setFixedSize(32, 32)
-        self.next_avatar_btn.setIconSize(QtCore.QSize(32, 32))
-        self.next_avatar_btn.setCursor(QtCore.Qt.PointingHandCursor)
-        self.avatar_choice_lyt.addWidget(self.next_avatar_btn)
+        self.content_lyt.addWidget(self.avatar_paint_wid)
 
     def make_connections(self):
         super(ConnectDialog, self).make_connections()
-        self.prev_avatar_btn.clicked.connect(lambda: self.set_avatar(self._avatar_id - 1))
-        self.next_avatar_btn.clicked.connect(lambda: self.set_avatar(self._avatar_id + 1))
         self.join_btn.clicked.connect(self.connect_to_socket)
 
-    def load_avatars(self):
-        for avatar, image_path in AVATARS:
-            pix = QtGui.QPixmap(image_path)
-            pix = pix.scaledToHeight(250, QtCore.Qt.SmoothTransformation)
-            self._avatar_pixmaps.append(pix)
+    def render_avatar(self):
+        # Render scene to pixmap
+        scene_rect = self.avatar_paint_wid.paint_view.sceneRect().toRect()
+        dest_rect = QtCore.QRect(0, 0, 64, 64)
+        pixmap = QtGui.QPixmap(dest_rect.size())
 
-    def set_avatar(self, index):
-        index = index % len(AVATARS)
-        self.avatar_lbl.setPixmap(self._avatar_pixmaps[index])
-        self.avatar_name_lbl.setText(AVATARS[index][0])
+        with gui_utils.PainterContext(pixmap) as painter:
+            self.avatar_paint_wid.paint_view.render(painter, dest_rect, scene_rect)
 
-        self._avatar_id = index
+        pixmap = pixmap.scaledToWidth(64, QtCore.Qt.SmoothTransformation)
+
+        # Composite the pixmap to make rounded corners
+        avatar = QtGui.QPixmap(pixmap.size())
+        avatar.fill(QtCore.Qt.transparent)
+
+        with gui_utils.PainterContext(avatar) as painter:
+            painter.setBrush(QtCore.Qt.black)
+            painter.setPen(QtCore.Qt.NoPen)
+            painter.drawRoundedRect(4, 4, avatar.width() - 8, avatar.height() - 8, 8, 8)
+
+            painter.setCompositionMode(painter.CompositionMode_SourceAtop)
+            painter.drawPixmap(0, 0, pixmap)
+
+        return gui_utils.pixmap_to_bytes(avatar)
 
     def connect_to_socket(self):
         host = self.host_lne.text()
@@ -175,8 +147,8 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
 
         self.client.host = host
         self.client.port = self.port_spin.value()
-        self.client._name = self.name_lne.text()
-        self.client._avatar_id = self._avatar_id
+        self.client.name = self.name_lne.text()
+        self.client.avatar = self.render_avatar()
 
         with gui_utils.BusyCursor():
             connection_error = self.client.start()

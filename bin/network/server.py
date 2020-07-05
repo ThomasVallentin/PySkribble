@@ -90,10 +90,10 @@ class SkribbleConnection(Connection):
 
         return True
 
-    def add_player(self, name, avatar_id):
+    def add_player(self, name, avatar_bytes):
         self.player = self.game.create_player()
         self.player.name = name
-        self.player.avatar_id = avatar_id
+        self.player.avatar = avatar_bytes
         self.logger.debug(f"Creating a new player {name} for connection "
                           f"{self.socket.getsockname()}")
 

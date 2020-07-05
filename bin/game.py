@@ -12,7 +12,7 @@ from lib import utils
 class Player(object):
     def __init__(self):
         self.name = None
-        self.avatar_id = 0
+        self.avatar = bytearray()
         self.score = 0
 
         self.is_master = False
