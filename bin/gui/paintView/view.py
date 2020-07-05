@@ -1,20 +1,11 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 
-import logging
-
 from gui.utils import ColorDialog
 from gui.paintView.tools import Tool
 from gui.paintView import painting as paint
+from lib import logger as log
 
-logger = logging.getLogger("PaintView")
-logger.setLevel(logging.DEBUG)
-
-handler = logging.StreamHandler()
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s %(name)s : %(message)s')
-formatter.datefmt = "%H:%M:%S"
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+logger = log.Logger("PaintView", level=log.INFO)
 
 
 class Scene(QtWidgets.QGraphicsScene):
