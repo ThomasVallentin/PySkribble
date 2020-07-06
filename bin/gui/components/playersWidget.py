@@ -46,11 +46,11 @@ class PlayersWidget(QtWidgets.QWidget):
         self.lyt.addLayout(self.players_sorting_lyt)
 
         self.player_list_wid = QtWidgets.QListWidget(self)
-        self.player_list_wid.setSpacing(4)
+        self.player_list_wid.setSpacing(8)
         self.player_list_wid.setStyleSheet("padding: 4px; border: none;")
         self.player_list_wid.setObjectName(u"player_list_wid")
         self.player_list_wid.setProperty("elevation", "low")
-
+        
         self.player_list_wid_lyt = QtWidgets.QVBoxLayout(self.player_list_wid)
         self.player_list_wid_lyt.setSpacing(2)
         self.player_list_wid_lyt.setObjectName(u"player_list_wid_lyt")
@@ -76,7 +76,7 @@ class PlayersWidget(QtWidgets.QWidget):
 
         item.widget = widget
         item.setFlags(QtCore.Qt.ItemIsEnabled)
-        item.setSizeHint(QtCore.QSize(0, 80))
+        item.setSizeHint(QtCore.QSize(0, widget.height()))
 
         self.player_items[player.id] = item
 

@@ -23,6 +23,7 @@ class Scene(QtWidgets.QGraphicsScene):
         self.set_current_layer(0)
 
     def add_layer(self, base_color=QtCore.Qt.transparent, switch=True):
+        print(base_color)
         pixmap = QtGui.QPixmap(self.width(), self.height())
         pixmap.fill(base_color)
 
@@ -258,8 +259,8 @@ class PaintView(QtWidgets.QGraphicsView):
             self.render(painter, QtCore.QRectF(0, 0, 1, 1),
                         QtCore.QRect(*pos.toTuple(), 1, 1))
 
-        pixmap.save("test.png", "PNG")
         self.color = pixmap.toImage().pixelColor(0, 0)
+        self.color_dialog.setCurrentColor(self.color)
 
 
 if __name__ == '__main__':

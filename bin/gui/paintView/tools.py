@@ -1,6 +1,9 @@
 from PySide2 import QtWidgets, QtCore, QtGui
+
+import os
+
+from constants import RESSOURCES_DIR
 from gui.utils import PainterContext
-from gui.paintView import painting as paint
 
 
 class Tool(object):
@@ -35,7 +38,7 @@ class Tool(object):
 
 
 class ColorTool(Tool):
-    eye_dropper_cursor = QtGui.QCursor(QtGui.QPixmap("ressources/EyeDropper.png"), 1, 23)
+    eye_dropper_cursor = QtGui.QCursor(QtGui.QPixmap(os.path.join(RESSOURCES_DIR, "EyeDropper.png")), 1, 23)
 
     def __init__(self, view):
         super(ColorTool, self).__init__(view)
@@ -271,7 +274,7 @@ class BucketTool(ColorTool):
         super(BucketTool, self).__init__(view)
 
         self.tolerance = 20
-        self.default_cursor = QtGui.QCursor(QtGui.QPixmap("ressources/BucketFill.png"), 23, 20)
+        self.default_cursor = QtGui.QCursor(QtGui.QPixmap(os.path.join(RESSOURCES_DIR, "BucketFill.png")), 23, 20)
 
     def on_press(self, event):
         if not event.buttons() & QtCore.Qt.LeftButton:

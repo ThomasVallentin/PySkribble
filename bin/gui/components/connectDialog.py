@@ -1,9 +1,10 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 
 import os
+import random
 
 from constants import RESSOURCES_DIR
-from gui.constants import AVATAR_SIZE
+from gui.constants import AVATAR_SIZE, AVATARS
 
 from gui.components import paintWidget
 from gui.components.framelessWindow import FramelessWindowMixin
@@ -105,9 +106,9 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
         self.name_lyt.addWidget(self.status_line)
 
         self.avatar_paint_wid = paintWidget.PaintWidget(self, 256, 256)
-        self.avatar_paint_wid.paint_view.scene.fill_layer(0, QtCore.Qt.white)
-        self.avatar_paint_wid.paint_view.scene.add_layer()
-        self.avatar_paint_wid.paint_view.scene.set_current_layer(-1)
+        self.avatar_paint_wid.paint_view.scene.layers[0].setPixmap(QtGui.QPixmap(random.choice(AVATARS)).scaledToWidth(256))
+        # self.avatar_paint_wid.paint_view.scene.add_layer()
+        # self.avatar_paint_wid.paint_view.scene.set_current_layer(-1)
 
         self.content_lyt.addWidget(self.avatar_paint_wid)
 
@@ -122,6 +123,7 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
         pixmap = QtGui.QPixmap(dest_rect.size())
 
         with gui_utils.PainterContext(pixmap) as painter:
+            painter.setRenderHints(painter.Antialiasing)
             self.avatar_paint_wid.paint_view.render(painter, dest_rect, scene_rect)
 
         # Composite the pixmap to make rounded corners
@@ -129,6 +131,7 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
         avatar.fill(QtCore.Qt.transparent)
 
         with gui_utils.PainterContext(avatar) as painter:
+            painter.setRenderHints(painter.Antialiasing)
             painter.setBrush(QtCore.Qt.black)
             painter.setPen(QtCore.Qt.NoPen)
             painter.drawRoundedRect(4, 4, avatar.width() - 8, avatar.height() - 8, 8, 8)

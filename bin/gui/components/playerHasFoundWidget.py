@@ -1,6 +1,8 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 
+import os
 
+from constants import RESSOURCES_DIR
 from gui.utils import PainterContext
 
 
@@ -26,7 +28,7 @@ class PlayerHasFoundWidget(QtWidgets.QLabel):
         self.hide()
 
     def set_rank(self, rank=0):
-        pixmap = QtGui.QPixmap("ressources/FoundSticker.png")
+        pixmap = QtGui.QPixmap(os.path.join(RESSOURCES_DIR, "FoundSticker.png"))
 
         with PainterContext(pixmap) as painter:
             painter.setFont(QtGui.QFont("Arial", 36, QtGui.QFont.Black))

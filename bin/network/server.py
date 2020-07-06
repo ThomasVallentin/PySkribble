@@ -5,7 +5,6 @@ import pickle
 
 from lib.server import Server, Connection, send_msg
 from network.constants import *
-from constants import AVATARS
 
 
 class SkribbleConnection(Connection):
@@ -74,8 +73,6 @@ class SkribbleConnection(Connection):
 
         elif typ == REMOVE_PLAYER:
             self.remove_player()
-
-            self.logger.info(f"Player {self.player.name} picked the avatar {AVATARS[data][0]} !")
 
             return True
 
