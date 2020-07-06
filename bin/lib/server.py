@@ -88,7 +88,6 @@ class Server(QtCore.QThread):
 
     def run(self):
         self.socket.bind(self.address)
-        print(self.socket.getsockname())
         self.socket.listen(2)
 
         self.logger.info(f"{self.__class__.__name__} started and running on {threading.current_thread().getName()}")
