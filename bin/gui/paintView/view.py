@@ -23,7 +23,6 @@ class Scene(QtWidgets.QGraphicsScene):
         self.set_current_layer(0)
 
     def add_layer(self, base_color=QtCore.Qt.transparent, switch=True):
-        print(base_color)
         pixmap = QtGui.QPixmap(self.width(), self.height())
         pixmap.fill(base_color)
 
