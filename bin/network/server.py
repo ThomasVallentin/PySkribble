@@ -107,8 +107,8 @@ class SkribbleServer(Server):
     choice_received = QtCore.Signal(game.Player, int)
     start_game_requested = QtCore.Signal(game.Player)
 
-    def __init__(self):
-        super(SkribbleServer, self).__init__()
+    def __init__(self, ip="", port=5555):
+        super(SkribbleServer, self).__init__(ip=ip, port=port)
         self.game = game.GameLogic()
 
         self.connect_game()

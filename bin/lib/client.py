@@ -10,17 +10,16 @@ from lib import logger, server
 class ListeningThread(QtCore.QThread):
     message_received = QtCore.Signal(tuple)
 
-    def __init__(self, ip, port):
+    def __init__(self, client):
         super(ListeningThread, self).__init__()
         self.logger = logger.Logger("ListeningThread", logger.INFO)
-        self.ip = ip
-        self.port = port
+        self.client = client
 
         self.socket = socket.socket()
 
     @property
     def address(self):
-        return self.ip, self.port
+        return self.client.address
 
     def run(self):
         self.socket.connect(self.address)
@@ -61,7 +60,7 @@ class Client(object):
 
         self.socket = socket.socket()
 
-        self.listening_thread = ListeningThread(self.host, self.port)
+        self.listening_thread = ListeningThread(self)
         self.listening_thread.message_received.connect(self._process_message)
 
     @property
