@@ -12,6 +12,7 @@ from gui.components.iconButton import IconButton
 from gui.components import historyTextBar as textbar
 from gui.components.framelessWindow import FramelessWindowMixin
 from gui.components import playerHasFoundWidget
+from gui.components import scoreBoard
 
 
 class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
@@ -133,9 +134,14 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.paint_wid_lyt.addWidget(self.start_btn, 0, QtCore.Qt.AlignCenter)
 
         self.player_has_found_wid = playerHasFoundWidget.PlayerHasFoundWidget(self.paint_wid)
-
         self.player_has_found_wid.hide()
+
         self.paint_wid_lyt.addWidget(self.player_has_found_wid, 0, QtCore.Qt.AlignCenter)
+
+        self.score_board = scoreBoard.ScoreBoard(self.paint_wid)
+        self.score_board.hide()
+
+        self.paint_wid_lyt.addWidget(self.score_board)
 
         self.guess_lyt = QtWidgets.QHBoxLayout()
         self.guess_lyt.setObjectName("guess_lyt")
@@ -229,7 +235,7 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.start_btn.hide()
 
     def start_round(self):
-        self.player_has_found_wid.hide()
+        self.score_board.hide()
 
     def make_guess(self):
         self.guess_made.emit(self.guess_lne.text())
@@ -254,3 +260,12 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.progress_animation.setEndValue(10000)
         self.progress_animation.setDuration(time)
         self.progress_animation.start()
+
+    def end_round(self, game, word):
+        self.player_has_found_wid.hide()
+
+        self.score_board.update_from_game(game)
+        self.score_board.show()
+
+        self.set_current_word(word)
+        self.start_progress_timer(game.score_time)

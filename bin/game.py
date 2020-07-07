@@ -35,6 +35,7 @@ class GameData(object):
         self.choices_count = 3
         self.choices = []
 
+        self.score_time = 10000
         self.choosing_time = 30000
         self.drawing_time = 50000
 
@@ -47,7 +48,7 @@ class GameLogic(QtCore.QObject):
     game_ended = QtCore.Signal()
 
     round_started = QtCore.Signal()
-    round_ended = QtCore.Signal()
+    round_ended = QtCore.Signal(str)
 
     choosing_started = QtCore.Signal(str, list, int)
     drawing_started = QtCore.Signal(str, str, int)
@@ -62,7 +63,6 @@ class GameLogic(QtCore.QObject):
         self.game_data = GameData()
 
         self.is_running = False
-        self.score_time = 1000
         self.current_word = None
         self.bonus_rules = {1: 25, 2: 15, 3: 5}
 
@@ -191,8 +191,7 @@ class GameLogic(QtCore.QObject):
                 break
         else:
             self.logger.info("All players have found the word, going to the next round...")
-            self.game_data.drawing_player.score += self.compute_drawer_points(remaining_time=self.drawing_timer.remainingTime())
-            self.drawing_timer.stop()
+
             self.end_round()
 
     def compute_guesser_points(self, remaining_time):
@@ -262,15 +261,21 @@ class GameLogic(QtCore.QObject):
         self.start_choosing()
 
     def end_round(self):
+        points = self.compute_drawer_points(remaining_time=self.drawing_timer.remainingTime())
+        self.game_data.drawing_player.round_score = points
+        self.game_data.drawing_player.score += points
+
+        self.drawing_timer.stop()
         self.drawing_phase = False
+
+        self.round_ended.emit(self.current_word)
 
         for player in self.game_data.players.values():
             player.has_found = False
             player.round_score = 0
 
-        self.round_ended.emit()
         self.display_scores()
-        QtCore.QTimer.singleShot(self.score_time, self.next_round)
+        QtCore.QTimer.singleShot(self.game_data.score_time, self.next_round)
 
     def next_round(self):
         if not self.game_data.players:

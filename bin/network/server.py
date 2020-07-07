@@ -121,7 +121,7 @@ class SkribbleServer(Server):
         self.game.game_started.connect(self.send_game_started)
 
         self.game.round_started.connect(self.send_round_started)
-        self.game.round_ended.connect(self.send_game_data)
+        self.game.round_ended.connect(self.send_round_ended)
 
         self.game.choosing_started.connect(self.send_choosing_started)
         self.game.drawing_started.connect(self.send_drawing_started)
@@ -151,6 +151,9 @@ class SkribbleServer(Server):
 
     def send_player_guessed(self, player_id, rank):
         self.send_message_to_listeners(PLAYER_GUESSED, (player_id, rank))
+
+    def send_round_ended(self, word):
+        self.send_message_to_listeners(ROUND_ENDED, (self.game.game_data, word))
 
     def send_message_to_listeners(self, typ, data):
         for connection in self.connections:

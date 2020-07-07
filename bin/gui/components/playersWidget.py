@@ -146,7 +146,7 @@ class PlayerWidget(QtWidgets.QFrame):
 
         self.name_lbl = QtWidgets.QLabel(self.player.name, self)
         self.name_lbl.setObjectName(u"player_name_lbl")
-        self.name_lbl.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Black))
+        self.name_lbl.setFont(QtGui.QFont("Arial", 14, QtGui.QFont.Black))
 
         self.lyt.addWidget(self.name_lbl)
 
@@ -158,7 +158,7 @@ class PlayerWidget(QtWidgets.QFrame):
 
         self.score_lbl = QtWidgets.QLabel(self)
         self.score_lbl.setText(str(self.player.score))
-        self.score_lbl.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Black))
+        self.score_lbl.setFont(QtGui.QFont("Arial", 14, QtGui.QFont.Black))
         self.score_lbl.setAlignment(QtCore.Qt.AlignRight)
         self.score_lbl.setObjectName(u"player_score_lbl")
 

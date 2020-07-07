@@ -12,7 +12,7 @@ from gui.components import connectDialog, skribblWidget
 
 class Skribble(client.SkribbleClient):
     def __init__(self):
-        super(Skribble, self).__init__(ip="176.172.240.55", port=5555)
+        super(Skribble, self).__init__(ip="176.172.240.55", port=252)
 
         self.game_widget = None
 
@@ -102,6 +102,11 @@ class Skribble(client.SkribbleClient):
 
         elif typ == ROUND_STARTED:
             self.game_widget.start_round()
+
+        elif typ == ROUND_ENDED:
+            game, word = data
+            self.update_game(game=game)
+            self.game_widget.end_round(game, word)
 
         elif typ == GAME_STARTED:
             self.game_widget.start_game()
