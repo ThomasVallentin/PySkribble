@@ -12,7 +12,9 @@ class SkribbleClient(Client):
         self.name = name
         self.avatar = bytearray()
         self.id = None
+
         self._game_data = None
+        self._paint_buffer = []
 
     @property
     def player(self):
@@ -39,6 +41,7 @@ class SkribbleClient(Client):
     def send_player(self):
         self.send_message(ADD_PLAYER, (self.name, self.avatar))
         self.id = pickle.loads(recv_msg(self.socket))
+        self._paint_buffer = pickle.loads(recv_msg(self.socket))
 
     def send_guess(self, guess):
         self.send_message(GUESS, guess)

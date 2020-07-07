@@ -52,6 +52,7 @@ class SkribbleConnection(Connection):
 
         if typ == PAINT:
             self.server.send_message_to_listeners(PAINT, data)
+            self.game.add_paint_to_buffer(data)
             return True
 
         elif typ == GUESS:
@@ -68,7 +69,9 @@ class SkribbleConnection(Connection):
             self.logger.info(f'Player "{data[0]}" just joined the party !')
 
             self.send_data(self.player.id)
+            self.send_data(self.game.paint_buffer)
             self.server.send_message_to_listeners(GAME_DATA, self.game_data)
+
             return True
 
         elif typ == REMOVE_PLAYER:

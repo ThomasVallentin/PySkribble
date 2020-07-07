@@ -61,6 +61,7 @@ class GameLogic(QtCore.QObject):
         self.remaining_words = []
 
         self.game_data = GameData()
+        self.paint_buffer = []
 
         self.is_running = False
         self.current_word = None
@@ -81,6 +82,14 @@ class GameLogic(QtCore.QObject):
         with open(path, "r") as f:
             self.words = json.load(f)
             self.remaining_words = self.words
+
+    # == PAINT BUFFER ==============================================================================
+
+    def add_paint_to_buffer(self, paint_info):
+        self.paint_buffer.append(paint_info)
+
+    def flush_paint_buffer(self):
+        self.paint_buffer.clear()
 
     # == CHOICES ===================================================================================
 
@@ -270,6 +279,8 @@ class GameLogic(QtCore.QObject):
 
         self.round_ended.emit(self.current_word)
 
+        # Reset various states
+        self.flush_paint_buffer()
         for player in self.game_data.players.values():
             player.has_found = False
             player.round_score = 0

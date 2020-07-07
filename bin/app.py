@@ -46,6 +46,14 @@ class Skribble(client.SkribbleClient):
         self.game_widget.guess_made.connect(self.send_guess)
         self.game_widget.show()
 
+        QtCore.QTimer.singleShot(10, self.flush_paint_buffer)
+
+    def flush_paint_buffer(self):
+        for paint_info in self._paint_buffer:
+            self.game_widget.paint_wid.paint_from_message(*paint_info)
+
+        self._paint_buffer.clear()
+
     def close(self):
         self.socket.close()
 
@@ -107,6 +115,9 @@ class Skribble(client.SkribbleClient):
             game, word = data
             self.update_game(game=game)
             self.game_widget.end_round(game, word)
+
+        elif typ == PAINT_BUFFER:
+            print("PAINT BUFFER", data)
 
         elif typ == GAME_STARTED:
             self.game_widget.start_game()
