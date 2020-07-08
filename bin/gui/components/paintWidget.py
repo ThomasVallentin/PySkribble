@@ -17,7 +17,7 @@ class PaintWidget(QtWidgets.QWidget):
         self.lyt = QtWidgets.QVBoxLayout(self)
 
         self.paint_view = PaintView(self, width, height, base_color=QtCore.Qt.white)
-        self.paint_view.setStyleSheet("background-color: white;")
+        self.paint_view.setStyleSheet("PaintView{background-color: white;}")
 
         self.paint_view.scene.add_layer(switch=True)
 

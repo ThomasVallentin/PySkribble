@@ -18,3 +18,11 @@ def make_preview(word):
             res += "_" * len(part)
 
     return " ".join(res)
+
+
+def snake_to_camel(string):
+    return "".join((s.capitalize() for s in string.split("_")))
+
+
+def camel_to_pretty(string):
+    return "".join((" " + s if s.isupper() else s for s in string))

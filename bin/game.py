@@ -4,7 +4,7 @@ import os
 import json
 import random
 
-from constants import RESSOURCES_DIR
+from constants import RESSOURCES_DIR, DEFAULT_CONFIG
 from lib import logger
 from lib import utils
 
@@ -32,15 +32,12 @@ class GameData(object):
         self.players = {}
         self.player_queue = []
 
-        self.choices_count = 3
-        self.choices = []
-
-        self.score_time = 10000
-        self.choosing_time = 30000
-        self.drawing_time = 50000
-
-        self.drawing_player = None
+        self.config = DEFAULT_CONFIG.copy()
+        self.drawing_player = 0
+        self.master_player = 0
         self.found_players_count = 0
+
+        self.has_started = False
 
 
 class GameLogic(QtCore.QObject):
@@ -57,13 +54,15 @@ class GameLogic(QtCore.QObject):
     def __init__(self):
         super(GameLogic, self).__init__()
         self.logger = logger.Logger(self.__class__.__name__, logger.INFO)
+
         self.words = []
         self.remaining_words = []
+        self.choices = []
+        self.found_players_count = 0
 
         self.game_data = GameData()
         self.paint_buffer = []
 
-        self.is_running = False
         self.current_word = None
         self.bonus_rules = {1: 25, 2: 15, 3: 5}
 
@@ -94,11 +93,11 @@ class GameLogic(QtCore.QObject):
     # == CHOICES ===================================================================================
 
     def generate_choices(self):
-        if len(self.remaining_words) < self.game_data.choices_count:
+        if len(self.remaining_words) < self.config["choices_count"]:
             self.remaining_words = list(self.words)
 
-        self.game_data.choices = random.sample(self.remaining_words, k=self.game_data.choices_count)
-        self.logger.debug(f"Generated choices are : {self.game_data.choices}")
+        self.choices = random.sample(self.remaining_words, k=self.config["choices_count"])
+        self.logger.debug(f"Generated choices are : {self.choices}")
 
     def start_choosing(self):
         self.choosing_phase = True
@@ -111,13 +110,13 @@ class GameLogic(QtCore.QObject):
 
         self.logger.info(f"{self.game_data.drawing_player.name} is choosing...")
 
-        self.choosing_timer.start(self.game_data.choosing_time)
+        self.choosing_timer.start(self.config["choosing_time"])
         self.choosing_timer.timeout.connect(lambda: self.logger.debug("TIMEOUT"))
 
-        self.choosing_started.emit(self.game_data.drawing_player.id, self.game_data.choices, self.game_data.choosing_time)
+        self.choosing_started.emit(self.game_data.drawing_player.id, self.choices, self.config["choosing_time"])
 
     def _select_word(self, index):
-        self.current_word = self.game_data.choices[index]
+        self.current_word = self.choices[index]
         self.remaining_words.remove(self.current_word)
 
         self.logger.debug(f"Current word is now : {self.current_word}")
@@ -132,7 +131,7 @@ class GameLogic(QtCore.QObject):
         if player is not self.game_data.drawing_player:
             return
 
-        if index >= self.game_data.choices_count:
+        if index >= self.config["choices_count"]:
             return
 
         self.choosing_timer.stop()
@@ -144,7 +143,7 @@ class GameLogic(QtCore.QObject):
 
     def end_choosing(self):
         self.logger.debug("Time is up ! No choice has been made, choosing randomly instead...")
-        self._select_word(random.randint(0, self.game_data.choices_count - 1))
+        self._select_word(random.randint(0, self.config["choices_count"] - 1))
 
         self.start_drawing()
 
@@ -158,8 +157,8 @@ class GameLogic(QtCore.QObject):
 
         self.found_players_count = 0
 
-        self.drawing_started.emit(self.game_data.drawing_player.id, self.current_word, self.game_data.drawing_time)
-        self.drawing_timer.start(self.game_data.drawing_time)
+        self.drawing_started.emit(self.game_data.drawing_player.id, self.current_word, self.config["drawing_time"])
+        self.drawing_timer.start(self.config["drawing_time"])
 
     def make_guess(self, player, guess):
         if not self.drawing_phase:
@@ -223,6 +222,7 @@ class GameLogic(QtCore.QObject):
 
         if not self.game_data.players:
             player.is_master = True
+            self.game_data.master_player = player
 
         self.game_data.players[player.id] = player
         self.game_data.player_queue.append(player.id)
@@ -240,14 +240,22 @@ class GameLogic(QtCore.QObject):
             self.stop()
             return
 
-        if player.is_master:
+        if player.is_master and self.game_data.player_queue:
             new_master = self.player_from_id(random.choice(self.game_data.player_queue))
             new_master.is_master = True
+            self.game_data.master_player = new_master
 
     def player_from_id(self, id):
         return self.game_data.players.get(id, None)
 
     # == GLOBAL ====================================================================================
+
+    @property
+    def config(self):
+        return self.game_data.config
+
+    def set_config(self, config_dict):
+        self.game_data.config.update(config_dict)
 
     def start(self):
         if len(self.game_data.players) < 2:
@@ -255,8 +263,10 @@ class GameLogic(QtCore.QObject):
             return
 
         self.logger.info("Starting the game !")
+
+
         self.game_started.emit()
-        self.is_running = True
+        self.game_data.has_started = True
 
         self.load_words(os.path.join(RESSOURCES_DIR, "words.json"))
         self.start_round()
@@ -286,7 +296,7 @@ class GameLogic(QtCore.QObject):
             player.round_score = 0
 
         self.display_scores()
-        QtCore.QTimer.singleShot(self.game_data.score_time, self.next_round)
+        QtCore.QTimer.singleShot(self.config["score_time"], self.next_round)
 
     def next_round(self):
         if not self.game_data.players:
@@ -302,7 +312,7 @@ class GameLogic(QtCore.QObject):
         self.drawing_timer.stop()
         self.choosing_timer.stop()
 
-        self.is_running = False
+        self.game_data.has_started = False
         self.game_ended.emit()
 
     def display_scores(self):

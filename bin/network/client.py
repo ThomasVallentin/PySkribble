@@ -52,8 +52,8 @@ class SkribbleClient(Client):
     def send_paint(self, paint_info):
         self.send_message(PAINT, paint_info)
 
-    def start_game(self):
-        self.send_message(START_GAME, "")
+    def start_game(self, config_dict):
+        self.send_message(START_GAME, config_dict)
 
     def update_game(self, game):
         self._game_data = game

@@ -1,14 +1,13 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 
 from constants import *
-from gui import utils as guiutils
 
 from gui.components import playersWidget as plywid
 from gui.components import chatWidget as chtwid
 from gui.components import paintWidget as pntwid
 from gui.components import choiceWidget as chcdial
 
-from gui.components.iconButton import IconButton
+from gui.components import configWidget
 from gui.components import historyTextBar as textbar
 from gui.components.framelessWindow import FramelessWindowMixin
 from gui.components import playerHasFoundWidget
@@ -19,7 +18,7 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
     guess_made = QtCore.Signal(str)
     choice_made = QtCore.Signal(int)
     message_sent = QtCore.Signal(str)
-    start_requested = QtCore.Signal()
+    start_requested = QtCore.Signal(object)
 
     def __init__(self, client, parent=None):
         """
@@ -56,10 +55,14 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.setObjectName("SkribblWidget")
         self.setProperty("elevation", "lowest")
 
+        # Title
+
         self.title_lbl = QtWidgets.QLabel(self)
         self.title_lbl.setStyleSheet("margin: 0; padding:0;")
         self.title_lbl.setPixmap(QtGui.QPixmap(os.path.join(RESSOURCES_DIR, "game_header.png")))
         self.lyt.addWidget(self.title_lbl)
+
+        # Main widget
 
         self.main_wid = QtWidgets.QWidget(self)
         self.main_wid.setObjectName("main_wid")
@@ -69,6 +72,8 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.main_wid_lyt.setSpacing(16)
         self.main_wid_lyt.setObjectName("main_wid_lyt")
         self.main_wid_lyt.setContentsMargins(16, 16, 16, 16)
+
+        # Progress bar
 
         self.time_progress_wid = QtWidgets.QWidget(self.main_wid)
         self.time_progress_wid.setObjectName("time_progress_wid")
@@ -88,6 +93,8 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.time_progress_wid_lyt.addWidget(self.time_progressbar)
         self.main_wid_lyt.addWidget(self.time_progress_wid)
 
+        # Game widget
+
         self.game_wid = QtWidgets.QWidget(self.main_wid)
         self.game_wid.setObjectName("game_wid")
 
@@ -95,6 +102,8 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.game_wid_lyt.setSpacing(16)
         self.game_wid_lyt.setObjectName("game_wid_lyt")
         self.game_wid_lyt.setContentsMargins(0, 0, 0, 0)
+
+        # Players widget
 
         self.players_wid_cont = QtWidgets.QWidget(self.game_wid)
         self.players_wid_cont.setObjectName("players_wid_container")
@@ -106,6 +115,8 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.players_wid = plywid.PlayersWidget(self.players_wid_cont)
 
         self.players_wid_cont.layout().addWidget(self.players_wid)
+
+        # Paint Widget
 
         self.paint_and_guess_wid = QtWidgets.QWidget(self.game_wid)
         self.paint_and_guess_wid.setObjectName("paint_and_guess_wid")
@@ -120,28 +131,37 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
 
         self.paint_and_guess_wid_lyt.addWidget(self.paint_wid)
 
+        # Paint overlay widgets
+
         self.paint_wid_lyt = QtWidgets.QVBoxLayout(self.paint_wid.paint_view)
+        self.paint_wid_lyt.setContentsMargins(0, 0, 0, 0)
 
-        self.start_btn = QtWidgets.QPushButton("Start game !", self)
-        self.start_btn.setProperty("importance", "secondary")
-        self.start_btn.setStyleSheet("QPushButton{padding: 16px;background-color: rgb(255, 0, 88)} "
-                                     "QPushButton:hover{background: rgb(255, 51, 121)}"
-                                     "QPushButton:pressed{background: rgb(0, 0, 0)}")
-        self.start_btn.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Black))
-        self.start_btn.setCursor(QtCore.Qt.PointingHandCursor)
-        self.start_btn.setFixedWidth(250)
+        self.paint_overlay_wid = QtWidgets.QFrame(self.paint_wid)
+        self.paint_overlay_wid.setObjectName("paint_overlay_widget")
+        self.paint_overlay_wid.setStyleSheet("QFrame#paint_overlay_widget{"
+                                             "    background-color: rgba(0, 0, 0, 180)}")
+        self.paint_overlay_wid.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                                                   QtWidgets.QSizePolicy.Expanding))
+        self.paint_overlay_wid.hide()
 
-        self.paint_wid_lyt.addWidget(self.start_btn, 0, QtCore.Qt.AlignCenter)
+        self.paint_wid_lyt.addWidget(self.paint_overlay_wid)
 
-        self.player_has_found_wid = playerHasFoundWidget.PlayerHasFoundWidget(self.paint_wid)
+        self.paint_overlay_lyt = QtWidgets.QVBoxLayout(self.paint_overlay_wid)
+
+        self.config_wid = configWidget.ConfigWidget(DEFAULT_CONFIG, self)
+        self.config_wid.hide()
+
+        self.paint_overlay_lyt.addWidget(self.config_wid, 0, QtCore.Qt.AlignCenter)
+
+        self.player_has_found_wid = playerHasFoundWidget.PlayerHasFoundWidget(self)
         self.player_has_found_wid.hide()
 
-        self.paint_wid_lyt.addWidget(self.player_has_found_wid, 0, QtCore.Qt.AlignCenter)
+        self.paint_overlay_lyt.addWidget(self.player_has_found_wid, 0, QtCore.Qt.AlignCenter)
 
         self.score_board = scoreBoard.ScoreBoard(self.paint_wid)
         self.score_board.hide()
 
-        self.paint_wid_lyt.addWidget(self.score_board)
+        self.paint_overlay_lyt.addWidget(self.score_board, 0, QtCore.Qt.AlignCenter)
 
         self.guess_lyt = QtWidgets.QHBoxLayout()
         self.guess_lyt.setObjectName("guess_lyt")
@@ -172,8 +192,12 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
 
     def make_connections(self):
         super(SkribblWidget, self).make_connections()
-        self.start_btn.clicked.connect(self.start_requested.emit)
+        self.config_wid.start_btn.clicked.connect(self.request_start)
         self.guess_lne.text_sent.connect(self.make_guess)
+        self.player_has_found_wid.dismiss.connect(self.dismiss_player_has_found_widget)
+
+    def request_start(self):
+        self.start_requested.emit(self.config_wid.config)
 
     def on_close(self):
         self.client.close()
@@ -187,10 +211,14 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
             self.choice_dial.deleteLater()
             self.choice_dial = None
 
+    def start_config(self, config_dict):
+        self.config_wid.config = config_dict.copy()
+        self.config_wid.update_from_config()
+        self.paint_overlay_wid.show()
+        self.config_wid.show()
+
     def start_choosing(self, choices, time):
         # Conforming the window state
-        self.start_btn.hide()
-
         self.choice_dial = chcdial.ChoiceWidget(self)
         rect = QtCore.QRect(0, 64, self.width(), self.height() - 64)
 
@@ -204,14 +232,12 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
 
     def wait_for_choice(self, time):
         # Conforming the window state
-        self.start_btn.hide()
         self.paint_wid.lock()
 
         self.start_progress_timer(time)
 
     def start_drawing(self, word, time):
         # Conforming the window state
-        self.start_btn.hide()
         self.clear_choice_dialog()
         self.paint_wid.paint_view.clear()
         self.paint_wid.unlock()
@@ -221,7 +247,6 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
 
     def start_guessing(self, preview, time):
         # Conforming the window state
-        self.start_btn.hide()
         self.paint_wid.lock()
         self.paint_wid.paint_view.clear()
 
@@ -232,9 +257,11 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
         self.time_progressbar.setFormat(word)
 
     def start_game(self):
-        self.start_btn.hide()
+        self.paint_overlay_wid.hide()
+        self.config_wid.hide()
 
     def start_round(self):
+        self.paint_overlay_wid.hide()
         self.score_board.hide()
 
     def make_guess(self):
@@ -243,7 +270,13 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
 
     def guess_was_right(self, rank):
         self.player_has_found_wid.set_rank(rank)
+
+        self.paint_overlay_wid.show()
         self.player_has_found_wid.show()
+
+    def dismiss_player_has_found_widget(self):
+        self.paint_overlay_wid.hide()
+        self.player_has_found_wid.hide()
 
     def set_player_has_found(self, player_id):
         self.players_wid.set_player_has_found(player_id)
@@ -263,9 +296,10 @@ class SkribblWidget(FramelessWindowMixin, QtWidgets.QWidget):
 
     def end_round(self, game, word):
         self.player_has_found_wid.hide()
+        self.paint_overlay_wid.show()
 
         self.score_board.update_from_game(game)
         self.score_board.show()
 
         self.set_current_word(word)
-        self.start_progress_timer(game.score_time)
+        self.start_progress_timer(game.config["score_time"])

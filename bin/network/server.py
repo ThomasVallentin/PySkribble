@@ -70,18 +70,13 @@ class SkribbleConnection(Connection):
 
             self.send_data(self.player.id)
             self.send_data(self.game.paint_buffer)
-            self.server.send_message_to_listeners(GAME_DATA, self.game_data)
-
-            return True
-
-        elif typ == REMOVE_PLAYER:
-            self.remove_player()
+            self.server.send_message_to_listeners(ADD_PLAYER, (self.player.id, self.game_data))
 
             return True
 
         elif typ == START_GAME:
             self.logger.info(f'Player "{self.player.name}" just requested the game to start !')
-            self.server.start_game_requested.emit(self.player)
+            self.server.start_game_requested.emit(data)
             return True
 
         elif typ == ECHO:
@@ -108,7 +103,7 @@ class SkribbleServer(Server):
 
     guess_received = QtCore.Signal(game.Player, str)
     choice_received = QtCore.Signal(game.Player, int)
-    start_game_requested = QtCore.Signal(game.Player)
+    start_game_requested = QtCore.Signal(dict)
 
     def __init__(self, ip="", port=5555):
         super(SkribbleServer, self).__init__(ip=ip, port=port)
@@ -119,7 +114,7 @@ class SkribbleServer(Server):
     def connect_game(self):
         self.choice_received.connect(self.game.make_choice)
         self.guess_received.connect(self.game.make_guess)
-        self.start_game_requested.connect(self.game.start)
+        self.start_game_requested.connect(self.start_game)
 
         self.game.game_started.connect(self.send_game_started)
 
@@ -133,9 +128,13 @@ class SkribbleServer(Server):
     def connection_ended(self, connection):
         if connection.player:
             connection.remove_player()
-            self.send_message_to_listeners(GAME_DATA, self.game.game_data)
+            self.send_message_to_listeners(REMOVE_PLAYER, self.game.game_data)
 
         super(SkribbleServer, self).connection_ended(connection)
+
+    def start_game(self, config_dict):
+        self.game.set_config(config_dict)
+        self.game.start()
 
     def send_game_started(self):
         self.send_message_to_listeners(GAME_STARTED, True)
@@ -161,4 +160,7 @@ class SkribbleServer(Server):
     def send_message_to_listeners(self, typ, data):
         for connection in self.connections:
             if not connection.player:
-                connection.send_message(typ, data)
+                try:
+                    connection.send_message(typ, data)
+                except:
+                    pass

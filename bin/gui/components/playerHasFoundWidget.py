@@ -9,6 +9,8 @@ from gui.utils import PainterContext
 class PlayerHasFoundWidget(QtWidgets.QLabel):
     _text_rect = QtCore.QRect(223, 326, 66, 66)
 
+    dismiss = QtCore.Signal()
+
     def __init__(self, parent=None):
         super(PlayerHasFoundWidget, self).__init__(parent=parent)
 
@@ -25,7 +27,7 @@ class PlayerHasFoundWidget(QtWidgets.QLabel):
                                                        QtCore.Qt.MaskInColor))
 
     def mousePressEvent(self, event):
-        self.hide()
+        self.dismiss.emit()
 
     def set_rank(self, rank=0):
         pixmap = QtGui.QPixmap(os.path.join(RESSOURCES_DIR, "FoundSticker.png"))

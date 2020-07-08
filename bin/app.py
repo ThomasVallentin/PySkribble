@@ -82,12 +82,12 @@ class Skribble(client.SkribbleClient):
             if pid == self.id:
                 self.logger.debug("Starting to choose...")
                 self.game_widget.start_choosing(choices, time)
-
             else:
                 self.game_widget.wait_for_choice(time)
 
         elif typ == DRAWING_STARTED:
             pid, word, time = data
+
             if pid == self.id:
                 self.game_widget.start_drawing(word, time)
             else:
@@ -97,16 +97,25 @@ class Skribble(client.SkribbleClient):
 
         elif typ == PLAYER_GUESSED:
             pid, rank = data
+
             if pid == self.id:
                 self.game_widget.guess_was_right(rank)
 
             self.game_widget.set_player_has_found(pid)
 
         elif typ == ADD_PLAYER:
-            pass
+            pid, game = data
+
+            self.update_game(game)
+
+            if pid == self.id and self.player.is_master:
+                self.game_widget.start_config(game.config)
 
         elif typ == REMOVE_PLAYER:
-            pass
+            self.update_game(data)
+
+            if self.player.is_master and not self.game_data.has_started:
+                self.game_widget.start_config(data.config)
 
         elif typ == ROUND_STARTED:
             self.game_widget.start_round()
