@@ -277,6 +277,9 @@ class BucketTool(ColorTool):
         self.default_cursor = QtGui.QCursor(QtGui.QPixmap(os.path.join(RESSOURCES_DIR, "BucketFill.png")), 23, 20)
 
     def on_press(self, event):
+        if not super(BucketTool, self).on_press(event):
+            return False
+
         if not event.buttons() & QtCore.Qt.LeftButton:
             return
 
