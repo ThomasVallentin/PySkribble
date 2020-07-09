@@ -107,8 +107,6 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
 
         self.avatar_paint_wid = paintWidget.PaintWidget(self, 256, 256)
         self.avatar_paint_wid.paint_view.scene.layers[0].setPixmap(QtGui.QPixmap(random.choice(AVATARS)).scaledToWidth(256))
-        # self.avatar_paint_wid.paint_view.scene.add_layer()
-        # self.avatar_paint_wid.paint_view.scene.set_current_layer(-1)
 
         self.content_lyt.addWidget(self.avatar_paint_wid)
 
