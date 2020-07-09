@@ -32,7 +32,7 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
         super(ConnectDialog, self).setup_ui()
 
         self.setWindowModality(QtCore.Qt.ApplicationModal)
-        self.setFixedSize(670, 415)
+        self.resize(670, 415)
         self.setProperty("elevation", "low")
 
         # MenuBar
@@ -119,6 +119,7 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
     def render_avatar(self):
         # Render scene to pixmap
         scene_rect = self.avatar_paint_wid.paint_view.sceneRect().toRect()
+        scene_rect = self.avatar_paint_wid.paint_view.mapFromScene(scene_rect).boundingRect()
         dest_rect = QtCore.QRect(0, 0, AVATAR_SIZE, AVATAR_SIZE)
         pixmap = QtGui.QPixmap(dest_rect.size())
 
@@ -135,7 +136,6 @@ class ConnectDialog(FramelessWindowMixin, QtWidgets.QDialog):
             painter.setBrush(QtCore.Qt.black)
             painter.setPen(QtCore.Qt.NoPen)
             painter.drawRoundedRect(4, 4, avatar.width() - 8, avatar.height() - 8, 8, 8)
-
             painter.setCompositionMode(painter.CompositionMode_SourceAtop)
             painter.drawPixmap(0, 0, pixmap)
 
