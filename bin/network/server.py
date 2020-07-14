@@ -51,7 +51,7 @@ class SkribbleConnection(Connection):
                           f" : {MESSAGE_NAMES.get(typ, MESSAGE_NAMES[-1] + str(typ))} {data}")
 
         if typ == PAINT:
-            self.server.send_message_to_listeners(PAINT, data)
+            self.server.send_message_to_listeners(PAINT, (self.player.id, data))
             self.game.add_paint_to_buffer(data)
             return True
 

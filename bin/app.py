@@ -91,12 +91,19 @@ class Skribble(client.SkribbleClient):
 
     def process_message(self, typ, data):
         if typ == PAINT:
-            # TODO: Handle the case where I am the painter (skip the painting)
-            self.game_widget.paint_wid.paint_from_message(*data)
+            pid, paint_data = data
+
+            if pid != self.id:
+                print("paint", paint_data)
+                self.game_widget.paint_wid.paint_from_message(*paint_data)
+
+            return
 
         elif typ == HINTS:
             print("data :", data)
             self.update_hints(data)
+
+            return
 
         elif typ == CHOOSING_STARTED:
             pid, choices, time = data
@@ -106,6 +113,8 @@ class Skribble(client.SkribbleClient):
                 self.game_widget.start_choosing(choices, time)
             else:
                 self.game_widget.wait_for_choice(time)
+
+            return
 
         elif typ == DRAWING_STARTED:
             pid, word, time = data
@@ -117,6 +126,8 @@ class Skribble(client.SkribbleClient):
 
             self.game_widget.set_drawing_player(pid)
 
+            return
+
         elif typ == PLAYER_GUESSED:
             pid, rank = data
 
@@ -124,6 +135,8 @@ class Skribble(client.SkribbleClient):
                 self.game_widget.guess_was_right(rank)
 
             self.game_widget.set_player_has_found(pid)
+
+            return
 
         elif typ == ADD_PLAYER:
             pid, game = data
@@ -133,24 +146,30 @@ class Skribble(client.SkribbleClient):
             if pid == self.id and self.player.is_master:
                 self.game_widget.start_config(game.config)
 
+            return
+
         elif typ == REMOVE_PLAYER:
             self.update_game(data)
 
             if self.player.is_master and not self.game_data.has_started:
                 self.game_widget.start_config(data.config)
 
+            return
+
         elif typ == ROUND_STARTED:
             self.game_widget.start_round()
+            return
 
         elif typ == ROUND_ENDED:
             game, word = data
             self.update_game(game=game)
             self.game_widget.end_round(game, word)
 
-        elif typ == PAINT_BUFFER:
-            print("PAINT BUFFER", data)
+            return
 
         elif typ == GAME_STARTED:
             self.game_widget.start_game()
+
+            return
 
         super(Skribble, self).process_message(typ, data)

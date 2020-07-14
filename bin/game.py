@@ -177,7 +177,6 @@ class GameLogic(QtCore.QObject):
         hints_percent = (5 - difficulty) / 5 * 0.9 + 0.001
         draw_time = self.config["drawing_time"]
 
-        print(draw_time / len(self.current_word) / hints_percent)
         return draw_time / len(self.current_word) / hints_percent
 
     def add_hint(self):

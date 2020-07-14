@@ -53,7 +53,7 @@ class ListeningThread(QtCore.QThread):
 class Client(object):
     def __init__(self, ip=None, port=None):
         super(Client, self).__init__()
-        self.logger = logger.Logger(self.__class__.__name__, logger.INFO)
+        self.logger = logger.Logger(self.__class__.__name__, logger.DEBUG)
 
         self.host = ip or socket.gethostname()
         self.port = port or 5555
