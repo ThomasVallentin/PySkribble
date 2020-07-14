@@ -123,6 +123,7 @@ class SkribbleServer(Server):
 
         self.game.choosing_started.connect(self.send_choosing_started)
         self.game.drawing_started.connect(self.send_drawing_started)
+        self.game.hint_added.connect(self.send_hints)
         self.game.player_guessed.connect(self.send_player_guessed)
 
     def connection_ended(self, connection):
@@ -150,6 +151,9 @@ class SkribbleServer(Server):
 
     def send_drawing_started(self, player_id, word, time):
         self.send_message_to_listeners(DRAWING_STARTED, (player_id, word, time))
+
+    def send_hints(self, hints):
+        self.send_message_to_listeners(HINTS, hints)
 
     def send_player_guessed(self, player_id, rank):
         self.send_message_to_listeners(PLAYER_GUESSED, (player_id, rank))

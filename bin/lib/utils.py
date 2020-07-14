@@ -17,7 +17,7 @@ def make_preview(word):
         else:
             res += "_" * len(part)
 
-    return " ".join(res)
+    return res
 
 
 def snake_to_camel(string):

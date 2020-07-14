@@ -4,7 +4,7 @@ from network.server import SkribbleServer
 
 app = QtCore.QCoreApplication([])
 
-server = SkribbleServer(ip="", port=5555)
+server = SkribbleServer(ip="192.168.56.1", port=5555)
 server.start()
 
 app.exec_()

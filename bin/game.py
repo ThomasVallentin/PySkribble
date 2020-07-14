@@ -32,9 +32,11 @@ class GameData(object):
         self.players = {}
         self.player_queue = []
 
+        self.hints = {}
+
         self.config = DEFAULT_CONFIG.copy()
-        self.drawing_player = 0
-        self.master_player = 0
+        self.drawing_player = None
+        self.master_player = None
         self.found_players_count = 0
 
         self.has_started = False
@@ -49,6 +51,7 @@ class GameLogic(QtCore.QObject):
 
     choosing_started = QtCore.Signal(str, list, int)
     drawing_started = QtCore.Signal(str, str, int)
+    hint_added = QtCore.Signal(dict)
     player_guessed = QtCore.Signal(str, int)
 
     def __init__(self):
@@ -63,7 +66,7 @@ class GameLogic(QtCore.QObject):
         self.game_data = GameData()
         self.paint_buffer = []
 
-        self.current_word = None
+        self.current_word = ""
         self.bonus_rules = {1: 25, 2: 15, 3: 5}
 
         self.choosing_timer = QtCore.QTimer(self)
@@ -73,6 +76,9 @@ class GameLogic(QtCore.QObject):
         self.drawing_timer = QtCore.QTimer(self)
         self.drawing_timer.setSingleShot(True)
         self.drawing_timer.timeout.connect(self.end_drawing)
+
+        self.hints_timer = QtCore.QTimer(self)
+        self.hints_timer.timeout.connect(self.add_hint)
 
         self.choosing_phase = False
         self.drawing_phase = False
@@ -145,6 +151,8 @@ class GameLogic(QtCore.QObject):
         self.logger.debug("Time is up ! No choice has been made, choosing randomly instead...")
         self._select_word(random.randint(0, self.config["choices_count"] - 1))
 
+        self.flush_hints()
+
         self.start_drawing()
 
     # == DRAWING ===================================================================================
@@ -159,6 +167,33 @@ class GameLogic(QtCore.QObject):
 
         self.drawing_started.emit(self.game_data.drawing_player.id, self.current_word, self.config["drawing_time"])
         self.drawing_timer.start(self.config["drawing_time"])
+        self.hints_timer.start(self.compute_hints_interval())
+
+    def compute_hints_interval(self):
+        if not self.current_word:
+            return 0
+
+        difficulty = max(1, min(self.config["hints_level"], 5))
+        hints_percent = (5 - difficulty) / 5 * 0.9 + 0.001
+        draw_time = self.config["drawing_time"]
+
+        print(draw_time / len(self.current_word) / hints_percent)
+        return draw_time / len(self.current_word) / hints_percent
+
+    def add_hint(self):
+        indices = [i for i in range(len(self.current_word)) if i not in self.game_data.hints]
+
+        if not indices:
+            return
+
+        current_index = random.choice(indices)
+
+        self.game_data.hints[current_index] = self.current_word[current_index]
+
+        self.hint_added.emit(self.game_data.hints)
+
+    def flush_hints(self):
+        self.game_data.hints.clear()
 
     def make_guess(self, player, guess):
         if not self.drawing_phase:
@@ -213,6 +248,9 @@ class GameLogic(QtCore.QObject):
 
     def end_drawing(self):
         self.logger.info("Time is up !")
+
+        self.hints_timer.stop()
+
         self.end_round()
 
     # == PLAYERS ===================================================================================
@@ -264,7 +302,6 @@ class GameLogic(QtCore.QObject):
 
         self.logger.info("Starting the game !")
 
-
         self.game_started.emit()
         self.game_data.has_started = True
 
@@ -311,6 +348,9 @@ class GameLogic(QtCore.QObject):
     def stop(self):
         self.drawing_timer.stop()
         self.choosing_timer.stop()
+        self.hints_timer.stop()
+
+        self.flush_hints()
 
         self.game_data.has_started = False
         self.game_ended.emit()

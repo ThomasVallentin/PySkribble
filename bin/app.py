@@ -12,9 +12,10 @@ from gui.components import connectDialog, skribblWidget
 
 class Skribble(client.SkribbleClient):
     def __init__(self):
-        super(Skribble, self).__init__(ip="176.172.240.55", port=252)
+        super(Skribble, self).__init__(ip="192.168.56.1", port=5555)
 
         self.game_widget = None
+        self.current_word = ""
 
         with open(os.path.join(RESSOURCES_DIR, "style.qss"), "r") as qss:
             self.qss = (qss.read())
@@ -70,11 +71,32 @@ class Skribble(client.SkribbleClient):
         super(Skribble, self).update_game(game)
 
         self.game_widget.update_players_from_game(self.game_data)
+        self.update_hints(self.game_data.hints)
+
+    def update_hints(self, hints):
+        print("update_hints :", hints)
+        self.game_data.hints = hints
+
+        if not self.player.is_drawing:
+            current_word = self.current_word
+            for index, hint in hints.items():
+                current_word = current_word[:index] + hint + current_word[index + 1:]
+
+            self.current_word = current_word
+            self.game_widget.set_current_word(" ".join(self.current_word))
+
+    def start_guessing(self, word, time):
+        self.current_word = utils.make_preview(word)
+        self.game_widget.start_guessing(" ".join(self.current_word), time)
 
     def process_message(self, typ, data):
         if typ == PAINT:
             # TODO: Handle the case where I am the painter (skip the painting)
             self.game_widget.paint_wid.paint_from_message(*data)
+
+        elif typ == HINTS:
+            print("data :", data)
+            self.update_hints(data)
 
         elif typ == CHOOSING_STARTED:
             pid, choices, time = data
@@ -91,7 +113,7 @@ class Skribble(client.SkribbleClient):
             if pid == self.id:
                 self.game_widget.start_drawing(word, time)
             else:
-                self.game_widget.start_guessing(utils.make_preview(word), time)
+                self.start_guessing(utils.make_preview(word), time)
 
             self.game_widget.set_drawing_player(pid)
 
