@@ -12,7 +12,7 @@ class ListeningThread(QtCore.QThread):
 
     def __init__(self, client):
         super(ListeningThread, self).__init__()
-        self.logger = logger.Logger("ListeningThread", logger.INFO)
+        self.logger = logger.Logger("ListeningThread", logger.DEBUG)
         self.client = client
 
         self.socket = socket.socket()

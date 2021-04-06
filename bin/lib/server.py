@@ -12,7 +12,7 @@ class Connection(QtCore.QThread):
 
     def __init__(self, socket, server, parent=None):
         super(Connection, self).__init__(parent)
-        self.logger = logger.Logger(self.__class__.__name__, logger.INFO)
+        self.logger = logger.Logger(self.__class__.__name__, logger.DEBUG)
 
         self.socket = socket
         self.server = server

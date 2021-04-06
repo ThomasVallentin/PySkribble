@@ -77,8 +77,12 @@ def erase_line(pixmap, pos1, pos2, width):
 
 
 def bucket_fill(pixmap, pos, fill_color):
+    fill_color.setAlpha(255)
     start_pixel = pos.x(), pos.y()
     image = pixmap.toImage()
+
+    if not image.hasAlphaChannel():
+        image.setAlphaChannel(QtGui.QImage(image.size(), QtGui.QImage.Format_Mono))
 
     image_width, image_height = image.width(), image.height()
 
@@ -140,4 +144,7 @@ def bucket_fill(pixmap, pos, fill_color):
                     to_sample.add(adj)
                     already_added.add(adj)
 
-    return QtGui.QPixmap.fromImage(image)
+
+    pix = QtGui.QPixmap.fromImage(image, QtCore.Qt.AutoColor)
+
+    return pix
